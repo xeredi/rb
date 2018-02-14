@@ -1,0 +1,209 @@
+****************************************************************************************************************
+
+BLUETOOTH
+	24:DA:9B:13:20:84 MotoG3
+	64:5A:04:C1:C3:97 localhost.localdomain (Toshiba)
+	B8:27:EB:46:2D:EF raspberry
+	5C:F3:70:88:34:24 localhost.localdomain (PC)
+
+	CONFIGURACIÓN BLUETOOTH
+	$ sudo hciconfig -a
+	$ sudo hciconfig hci0
+	$ sudo hciconfig hci0 up
+	$ sudo hciconfig hci0 down
+	$ sudo hciconfig hci0 piscan
+
+	Ver estado servicio bluetooth
+	$ sudo service bluetooth status
+	Información extendida (puede dar info de errores)
+	$ sudo service bluetooth status -l
+
+	Eliminar error de SAP al ver estado del servicio bluetooth:
+	https://raspberrypi.stackexchange.com/questions/40839/sap-error-on-bluetooth-service-status
+		$ sudo nano /etc/systemd/system/bluetooth.target.wants/bluetooth.service
+		Cambiar:
+			ExecStart=/usr/lib/bluetooth/bluetoothd
+		Por:
+			ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=sap
+		$ sudo systemctl daemon-reload
+		$ sudo service bluetooth restart
+		$ sudo service bluetooth status
+
+	COMANDOS BLUETOOTH
+	$ sudo hcitool
+
+	Ejemplos:
+	Dispositivos locales:
+	$ sudo hcitool dev
+
+	Busqueda de dispositivos cercanos
+	$ sudo hcitool scan
+
+	Informacion de un dispositivo
+	$ sudo hcitool info 64:5A:04:C1:C3:97
+	$ sudo hcitool info 24:DA:9B:13:20:84
+
+	Nombre de un dispositivo
+	$ sudo hcitool name 64:5A:04:C1:C3:97
+
+	Info de un dispositivo
+	$ sudo sdptool browse 64:5A:04:C1:C3:97
+	$ sudo sdptool browse 24:DA:9B:13:20:84
+
+	Cambiar nombre a un dispositivo
+	$ sudo hciconfig hci0 name 'Device Name'
+
+	CONSOLA BLUETOOTH
+	$ sudo bluetoothctl
+
+	Ejemplos:
+	Comandos disponibles
+	[bluetooth]# help
+
+	Arrancar bluetooth
+	[bluetooth]# power on
+
+	Busqueda de dispositivos
+	[bluetooth]# scan on
+
+	Confiar en un dispositivo
+	[bluetooth]# trust 64:5A:04:C1:C3:97
+
+	Emparejarse a un dispositivo
+	[bluetooth]# pair 64:5A:04:C1:C3:97
+
+	Conectarse a un dispositivo
+	[bluetooth]# connect 64:5A:04:C1:C3:97
+
+	Lista de dispositivos a los que estamos emparejados
+	[bluetooth]# paired-devices
+
+	Hacer bluetooth visible
+	[bluetooth]# discoverable on
+
+	Hacer bluetooth emparejable
+	[bluetooth]# pairable on
+
+
+****************************************************************************************************************
+
+TRANSFERIR ARCHIVOS ENTRE PC Y RASPBERRY
+
+	http://www.instructables.com/id/How-to-Transfer-Files-From-a-Raspberry-Pi-to-a-Win/
+	https://wiki.debian.org/BluetoothUser
+
+	Software necesario:
+		https://www.youtube.com/watch?v=GSMThZINNsc
+	$ sudo apt-get autoremove
+	$ sudo apt-get install pi-bluetooth
+	$ sudo apt-get install bluetooth bluez bluez-utils blueman minicom
+	$ lsusb
+	$ sudo nano /etc/bluetooth/main.conf
+		Añadir la línea:
+		DisablePlugins = pnat
+	$ sudo reboot
+
+	$ sudo hciconfig hci0 piscan
+	$ sudo bluetoothctl
+
+	$ sudo hcitool scan
+	$ sudo service bluetooth status
+	$ sudo /etc/init.d/bluetooth status
+	$ sudo l2ping -c 1 64:5A:04:C1:C3:97
+
+
+
+	$ sudo hciconfig -a
+	$ dmesg
+
+
+
+
+	$ sudo apt-get install obexftp bluetooth
+
+	$ sudo bluetoothctl
+	[bluetooth]# power on
+	[bluetooth]# agent on
+	[bluetooth]# default-agent
+	[bluetooth]# discoverable on
+	[bluetooth]# pairable on
+
+	Dar permisos a usuario para acceder al grupo bluetooth
+	$ sudo usermod -G bluetooth -a pi
+	$ sudo usermod -G bluetooth -a transport
+	$ cat /etc/group | grep bluetooth
+
+****************************************************************************************************************
+
+BLUECOVE
+
+****************************************************************************************************************
+
+CONEXION POR EL PUERTO SERIE
+
+	https://robotjava.wordpress.com/2016/09/04/raspberry-pi-3-bluetooth-android-pi4j-part-1/
+	https://robotjava.wordpress.com/2016/09/05/raspberry-pi-3-bluetooth-android-and-pi4j-part-2/
+
+	Software necesario:
+	$ sudo apt-get update
+	$ sudo apt-get dist-upgrade
+	$ sudo apt-get install piclone geany usb-modeswitch pi-bluetooth
+	$ sudo apt-get install python-pigpio python3-pigpio
+
+	Acceder a la consola bluetooth de la raspberry y emparejarse con el móvil:
+	$ sudo bluetoothctl
+	[bluetooth]# agent on
+	[bluetooth]# default-agent
+
+	Habilitar bluetooth en el móvil
+
+	Busqueda de dispositivos bluetooth:
+	[bluetooth]# scan on
+
+	Debería aparecer la MAC del móvil (Ej 64:5A:04:C1:C3:97). Nos emparejamos:
+	[bluetooth]# pair 64:5A:04:C1:C3:97
+
+	Tanto en móvil como en raspberry nos pedirá que confirmemos contraseña, decimos que si, y listo.
+
+****************************************************************************************************************
+LBT4J
+
+	$ sudo apt-get install bluetooth bluez-tools bluez build-essential autoconf glib2.0 libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline-dev bluez
+	$ sudo apt-get install pulseaudio
+	$ sudo apt-get install pulseaudio-module-bluetooth
+
+	$ mkdir tmp
+	$ cd tmp
+	$ git clone https://github.com/olir/lbt4j-lib.git
+	$ git clone https://github.com/olir/lbt4j-lib.git --branch R0.3
+	$ cd lbt4j-lib
+	$ mvn install
+
+	$ sudo java -Djava.library.path=jni -jar canbus-0.0.1.jar
+
+
+12.	tar xf Downloads/bluez-5.40.tar.xz
+13.	sudo mv bluez-5.40 /opt
+14.	cd /opt/bluez-5.40
+15.	unzip ~/Downloads/3b07a1eb296862da889609a84f8e10b299b7442d.zip
+16.	git apply -v c8230c48ea24698527cd-3b07a1eb296862da889609a84f8e10b299b7442d/*
+17.	sudo ./configure --prefix=/usr \
+			--mandir=/usr/share/man \
+			--sysconfdir=/etc \
+			--localstatedir=/var \
+			--enable-experimental \
+			--enable-maintainer-mode
+18.	sudo make
+19.	sudo make install
+20.	sudo sed -i '/^ExecStart.*bluetoothd\s*$/ s/$/ --experimental/' /lib/systemd/system/bluetooth.service
+
+
+****************************************************************************************************************
+CANBUS
+	uuid: 00001101-0000-1000-8000-00805F9B34FB
+
+	url movil: btgoep://24DA9B132084:12;authenticate=false;encrypt=false;master=false
+	url portatil: btspp://645A04C1C397:12;authenticate=false;encrypt=false;master=false
+
+
+****************************************************************************************************************

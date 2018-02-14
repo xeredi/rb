@@ -1,0 +1,25 @@
+******************************************************************************
+INSTALACION
+	https://eclipse.github.io/kura/intro/raspberry-pi-quick-start.html
+
+	Raspberry
+	$ sudo apt-get purge dhcpcd5
+	$ sudo apt-get remove network-manager
+	$ sudo apt-get update
+	$ sudo apt-get install gdebi-core
+	$ java -version
+	$ sudo apt-get install openjdk-8-jre-headless
+	$ wget http://www.mirrorservice.org/sites/download.eclipse.org/eclipseMirror/kura/releases/3.1.1/kura_3.1.1_raspberry-pi-2-3_installer.deb
+	$ sudo gdebi kura_3.1.1_raspberry-pi-2-3_installer.deb
+	$ sudo reboot
+	$ http://<device-ip>
+		admin/admin
+
+	PC
+		https://eclipse.github.io/kura/dev/kura-setup.html
+	* Download and install JDK SE 8 as appropriate for your OS (if it is not already installed). For Windows and Linux users, the JDK can be downloaded from Java SE 8 Downloads. Use the latest version of Java SE Development Kit.
+	* Download and install the Eclipse IDE for Java EE Developers from the Eclipse download site.
+	* Download the Kura user workspace archive from the Eclipse Kura download site.
+		https://www.eclipse.org/kura/downloads.php
+	* Import the Kura workspace zip file into the new Eclipse project development environment.
+	* Begin developing Kura-based applications for your target platform.

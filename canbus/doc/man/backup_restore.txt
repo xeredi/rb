@@ -1,0 +1,19 @@
+****************************************************************************************************************
+
+BACKUP / RESTORE
+
+https://www.raspberrypi.org/documentation/linux/filesystem/backup.md
+
+Meter la tarjeta en lector de tarjetas PC
+$ sudo fdisk -l
+
+Ver identificador tarjeta SD. En mi caso es /dev/sdd
+
+Backup:
+$ sudo dd bs=4M if=/dev/sdd | gzip > /home/xeredi/raspberry/images/backup/raspbian_`date +%Y%m%d_%H%M`.img.gz
+$ pv < /dev/sdd > /home/xeredi/raspberry/images/backup/raspbian_`date +%Y%m%d_%H%M`.img
+
+Restore:
+$ gunzip --stdout raspbian_20171114_1722.img.gz | sudo dd bs=4M of=/dev/sdd
+
+****************************************************************************************************************

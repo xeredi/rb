@@ -1,0 +1,185 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>bluetooth</groupId>
+    <artifactId>bluetooth</artifactId>
+    <version>0.0.1</version>
+
+    <properties>
+        <raspberry.ip>192.168.1.102</raspberry.ip>
+        <raspberry.user>transport</raspberry.user>
+        <raspberry.password>transport</raspberry.password>
+        <raspberry.deployPath>/home/transport</raspberry.deployPath>
+
+        <pi4j-core.version>1.1</pi4j-core.version>
+        <bluecove.version>2.1.1-SNAPSHOT</bluecove.version>
+        <commons-configuration2.version>2.2</commons-configuration2.version>
+        <commons-logging.version>1.2</commons-logging.version>
+        <log4j.version>1.2.17</log4j.version>
+        <lombok.version>1.16.18</lombok.version>
+        <rxtx.version>2.2-pre2</rxtx.version>
+        <commons-io.version>2.6</commons-io.version>
+        <mqttv3.version>1.2.0</mqttv3.version>
+        <jackson.version>2.9.3</jackson.version>
+        <quartz.version>2.3.0</quartz.version>
+        <javax.transaction-api.version>1.2</javax.transaction-api.version>
+        <commons-beanutils.version>1.9.3</commons-beanutils.version>
+        <obd-java-api.version>1.0</obd-java-api.version>
+
+        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.source>1.8</maven-compiler-plugin.source>
+        <maven-compiler-plugin.target>1.8</maven-compiler-plugin.target>
+        <maven-shade-plugin.version>3.1.0</maven-shade-plugin.version>
+        <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
+        <jsch.version>0.1.54</jsch.version>
+        <ant-jsch.version>1.10.1</ant-jsch.version>
+        <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
+        <maven-project-info-reports-plugin.dependencyLocationsEnabled>false</maven-project-info-reports-plugin.dependencyLocationsEnabled>
+    </properties>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${maven-compiler-plugin.source}</source>
+                    <target>${maven-compiler-plugin.target}</target>
+                    <debug>true</debug>
+                    <optimize>true</optimize>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven-shade-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <!-- mainClass>com.xeredi.canbus.Main</mainClass -->
+                                    <mainClass>xeredi.bluetooth.BluetoothSearch</mainClass>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${maven-antrun-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>scp-to-remote</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <scp localFile="${project.basedir}/target/bluetooth-0.0.1.jar" remoteToFile="${raspberry.user}@${raspberry.ip}:${raspberry.deployPath}"
+                                    verbose="true" password="${raspberry.password}" trust="true">
+                                </scp>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.jcraft</groupId>
+                        <artifactId>jsch</artifactId>
+                        <version>${jsch.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant-jsch</artifactId>
+                        <version>${ant-jsch.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven-project-info-reports-plugin.version}</version>
+                <configuration>
+                    <dependencyLocationsEnabled>
+                        ${maven-project-info-reports-plugin.dependencyLocationsEnabled}</dependencyLocationsEnabled>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <dependencies>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons-logging.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.bluecove</groupId>
+            <artifactId>bluecove</artifactId>
+            <version>${bluecove.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.bluecove</groupId>
+            <artifactId>bluecove-gpl</artifactId>
+            <version>${bluecove.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.bluecove</groupId>
+            <artifactId>bluecove-emu</artifactId>
+            <version>${bluecove.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.serviceflow</groupId>
+            <artifactId>lbt4j</artifactId>
+            <version>0.3.3</version>
+        </dependency>
+        <dependency>
+            <groupId>de.serviceflow</groupId>
+            <artifactId>lbt4j-lib</artifactId>
+            <version>0.3.3</version>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>eclipse</id>
+            <url>https://repo.eclipse.org/content/groups/releases/</url>
+        </repository>
+        <repository>
+            <id>rxtx</id>
+            <url>http://repo.opennms.org/maven2</url>
+        </repository>
+    </repositories>
+</project>

@@ -1,0 +1,6 @@
+MAVEN
+	* CREATE DEB PACKAGE
+		https://github.com/tcurdt/jdeb
+
+WIFI
+	http://weworkweplay.com/play/rebooting-the-raspberry-pi-when-it-loses-wireless-connection-wifi/

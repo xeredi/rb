@@ -1,0 +1,221 @@
+****************************************************************************************************************
+
+DESCARGA DE IMAGENES DE RASPBIAN LITE
+
+	http://downloads.raspberrypi.org/raspbian_lite/images/
+
+****************************************************************************************************************
+
+COPIAR IMAGEN EN SD
+
+	https://etcher.io/
+
+****************************************************************************************************************
+
+SSH
+
+	* Habilitar:
+	https://www.raspberrypi.org/documentation/remote-access/ssh/
+
+	Mejor este sistema
+	https://hackernoon.com/raspberry-pi-headless-install-462ccabd75d0
+
+	Crear un fichero llamado ssh en la partición boot (fichero vacio)
+
+	* Conectar ignorando cambios en key:
+	$ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no transport@192.168.1.102
+
+****************************************************************************************************************
+
+LAN
+	Busqueda de equipos en red local:
+	$ nmap -sP 192.168.1.0/24
+
+****************************************************************************************************************
+
+WIFI
+	https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md
+
+	Búsqueda de redes WIFI
+	$ sudo iwlist wlan0 scan
+
+	Generar PSK
+	$ wpa_passphrase "Orange-D570_EXT" "E95CA79F"
+	Resultado:
+	network={
+		ssid="Orange-D570_EXT"
+		#psk="E95CA79F"
+		psk=c131c2cd88596b59e5c03e6e8a6413f366d0686ab17a67a98172e91414d0d3ae
+		priority=3
+	}
+
+	network={
+		ssid="Orange-D570"
+		#psk="E95CA79F"
+		psk=3147e7ece6988638ec71b0bd9a3bc841c1398d968d4eeafcb605162a04e9448d
+		priority=2
+	}
+
+	network={
+		ssid="MotoG3 4190"
+		#psk="e3f860d55e3f"
+		psk=1391175fa22eb80a3ea18b742a244df4373c7ebab844ff2a516b5bb7be3ac4d4
+		priority=1
+	}
+
+
+
+network={
+	ssid="Orange-D570_EXT"
+	psk=c131c2cd88596b59e5c03e6e8a6413f366d0686ab17a67a98172e91414d0d3ae
+	priority=3
+}
+network={
+	ssid="Orange-D570"
+	psk=3147e7ece6988638ec71b0bd9a3bc841c1398d968d4eeafcb605162a04e9448d
+	priority=2
+}
+network={
+	ssid="MotoG3 4190"
+	psk=1391175fa22eb80a3ea18b742a244df4373c7ebab844ff2a516b5bb7be3ac4d4
+	priority=1
+}
+
+
+	Copiar resultado en /etc/wpa_supplicant/wpa_supplicant.conf (se puede eliminar la linea comentada de la contraseña. Es más, se recomienda)
+	$ sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
+
+	Reconfigurar la interfaz
+	$ wpa_cli -i wlan0 reconfigure
+
+	Verificar
+	$ ifconfig wlan0
+
+	Parar wifi
+	$ ifdown wlan0
+	$ sudo ip link set wlan0 down
+
+	Arrancar wifi
+	$ ifup wlan0
+	$ sudo ip link set wlan0 up
+
+****************************************************************************************************************
+
+INTERNET VIA USB
+	Ver interfaces de red:
+	$ ifconfig
+
+	Arrancar interfaz de red USB
+	$ ifup usb0
+
+	Parar interfaz de red USB
+	$ ifdown usb0
+
+****************************************************************************************************************
+
+SERIAL ID
+	https://raspberrypi.stackexchange.com/questions/2086/how-do-i-get-the-serial-number
+
+	$ cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2
+
+****************************************************************************************************************
+
+ACTUALIZACIONES
+
+	$ sudo apt-get update
+	$ sudo apt-get upgrade -y
+	$ sudo apt-get dist-upgrade -y
+	OJO. Actualiza firmware de la raspberry
+	$ sudo rpi-update
+	Limpiar
+	$ sudo apt-get clean
+	Espacio libre en disco
+	$ df -h
+
+****************************************************************************************************************
+
+BUSQUEDA DE PAQUETES EN RASPBIAN
+	$ sudo apt-cache search <package>
+	$ sudo apt-cache search jetty
+	$ sudo apt-cache search pgadmin
+
+VERSIONES DE PAQUETES EN RASPBIAN
+	$ sudo aptitude versions <package>
+	$ sudo aptitude versions jetty9
+
+INFORMACION DE UN PAQUETE
+	$ sudo aptitude show jetty9
+
+INSTALACION DE PAQUETES
+	Oracle Jdk 8:
+	$ sudo apt-get install oracle-java8-jdk
+
+****************************************************************************************************************
+
+USUARIOS Y GRUPOS
+	https://www.modmypi.com/blog/how-to-add-new-users-and-add-users-to-groups
+	https://www.tecmint.com/usermod-command-examples/
+
+Ver todos los usuarios:
+	$ getent passwd
+Ver todos los grupos:
+	$ getent group
+Ver grupos a los que pertenece un usuario:
+	$ groups <usuario>
+	$ groups pi
+Añadir un usuario a un grupo:
+	$ sudo adduser <username> <groupname>
+	$ sudo adduser pi postgres
+	$ sudo adduser pi jetty
+Eliminar usuario de un grupo:
+	$ sudo deluser <username> <groupname>
+	$ sudo deluser pi postgres
+	$ sudo deluser pi jetty
+Creación de un usuario:
+	$ sudo adduser <username>
+	$ sudo adduser busdistance
+Borrado de un usuario:
+	$ sudo deluser <username>
+	$ sudo deluser busdistance
+Cambio de parámetros de un usuario:
+	$ sudo usermod <options> <username>
+Cambio de contraseña de usuario:
+	$ sudo passwd <username>
+Dar permisos de sudo a un usuario
+	$ sudo visudo
+
+	Buscamos la entrada:
+	# User privilege specification
+	root    ALL=(ALL:ALL) ALL
+
+	Ejemplo para el usuario 'transport'. Añadimos la linea:
+	transport   ALL = NOPASSWD: ALL
+
+	Nota: La opcion NOPASSWD hace que no nos pida contraseña cada vez que ejecutemos: sudo CualquierComando
+
+****************************************************************************************************************
+
+SOFTWARE INSTALL
+	Java 8
+	$ sudo apt-get install oracle-java8-jdk
+
+	Java Serial (rxtx)
+	$ sudo apt-get install librxtx-java
+	$ sudo ln -s /dev/ttyAMA0 /dev/ttyS80
+	$ java -Djava.library.path=/usr/lib/jni -jar canbus-0.0.1.jar
+
+	GPS
+	$ sudo apt-get install gpsd gpsd-clients python-gps
+
+****************************************************************************************************************
+
+DETECCION DE SHIELDS
+	http://ozzmaker.com/i2c/
+
+	i2cdetect
+	$ sudo apt-get install i2c-tools libi2c-dev python-smbus
+
+	ACABAR!!!!!!!!!!!!!!!
+
+****************************************************************************************************************
+

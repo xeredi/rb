@@ -1,0 +1,3 @@
+mvn install:install-file -Dfile=bluecove-2.1.1-SNAPSHOT.jar -Dsources=bluecove-2.1.1-SNAPSHOT-sources.jar -DgroupId=net.sf.bluecove -DartifactId=bluecove -Dversion=2.1.1-SNAPSHOT -Dpackaging=jar
+mvn install:install-file -Dfile=bluecove-gpl-2.1.1-SNAPSHOT.jar -Dsources=bluecove-gpl-2.1.1-SNAPSHOT-sources.jar -DgroupId=net.sf.bluecove -DartifactId=bluecove-gpl -Dversion=2.1.1-SNAPSHOT -Dpackaging=jar
+mvn install:install-file -Dfile=bluecove-emu-2.1.1-SNAPSHOT.jar -Dsources=bluecove-emu-2.1.1-SNAPSHOT-sources.jar -DgroupId=net.sf.bluecove -DartifactId=bluecove-emu -Dversion=2.1.1-SNAPSHOT -Dpackaging=jar

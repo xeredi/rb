@@ -1,0 +1,14 @@
+****************************************************************************************************************
+
+JAVA
+
+	* Instalar jdk 1.8
+	https://www.raspberrypi.org/forums/viewtopic.php?t=101543
+	$ sudo apt-get install oracle-java8-jdk
+
+	* Instalar maven y ant (solo si hay que construir proyectos en la raspberry)
+	$ sudo apt-get install maven
+	$ sudo apt-get install ant
+
+****************************************************************************************************************
+

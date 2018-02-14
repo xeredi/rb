@@ -1,0 +1,35 @@
+GPS
+	22.29 €
+	http://www.dx.com/p/geekworm-usb-port-gps-l80-39-gps-module-for-raspberry-pi-3-model-b-441230#.Wglo32GnFUQ
+
+	EEPROM MWC APM2.5		 12.55 €
+	http://www.dx.com/es/p/gps-module-flight-control-eeprom-mwc-apm2-5-onboard-ceramic-passive-antenna-for-raspberry-pi-arduino-421367#.Wglrs2GnFUQ
+
+	U-BLOX NEO-6M 			14.38 €
+	http://www.dx.com/es/p/gps-module-w-ceramic-passive-antenna-for-raspberry-pi-arduino-red-384916#.Wgo13GGnFUQ
+RTC
+	2.23 €
+	http://www.dx.com/es/p/ds3231-high-precision-iic-clock-module-deep-blue-1-x-cr1220-294228#.Wglqg2GnFUQ
+
+Cable hembra a hembra 40 pin
+	http://www.dx.com/es/p/1-pin-female-to-female-dupont-cables-for-arduino-2-x-40-pcs-21cm-162180?tc=EUR&ta=ES&gclid=CjwKCAiAoqXQBRA8EiwAIIOWsmhZ8eECiFjoI_Qg6Py7OJhCiMoUqGDSVjM32srmGuMZCq7dvLbQHxoCH2gQAvD_BwE#.Wgoyn2GnFUQ
+
+Case
+	http://uk.rs-online.com/web/p/din-rail-enclosures/1224299/?origin=PSF_432901|acc
+
+Ejemplos diseño
+	https://www.rs-online.com/designspark/add-gps-time-and-location-to-a-raspberry-pi-project
+
+Ejemplos Soldadura:
+	https://www.youtube.com/watch?v=6eOFiuv2PGQ
+
+Videos
+	https://www.youtube.com/watch?v=FHAr3HgUTZo
+
+Shields
+	https://www.todoelectronica.com/es/escudo-gsm-gprs-gps-raspberry-pi-kit-para-montar-p-71474.html
+
+Stacking header
+	stacking header raspberry soldering
+
+Mecanizado de cajas!!!!

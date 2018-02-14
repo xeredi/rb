@@ -1,0 +1,152 @@
+********************************************************************************************************
+
+GPS MICROSTACK
+
+	http://bradsrpi.blogspot.com.es/2013/09/sample-java-code-to-read-gps-data-from.html
+	https://learn.adafruit.com/adafruit-nfc-rfid-on-raspberry-pi/freeing-uart-on-the-pi
+	https://eclipsesource.com/blogs/2012/10/17/serial-communication-in-java-with-raspberry-pi-and-rxtx/
+
+	https://raspberrypi.stackexchange.com/questions/50239/how-to-connect-rpi-3-and-microstack-gps
+	https://spellfoundry.com/2016/05/29/configuring-gpio-serial-port-raspbian-jessie-including-pi-3/#comment-67160
+
+
+	Actualizar SO
+	$ sudo apt-get update
+	$ sudo apt-get upgrade
+
+	Configurar puerto serie,
+	$ sudo  raspi-config
+		5 Interfacing options > P6 Serial
+		- A la pregunta "Would you like a login shell to be accessible over serial?" contestamos que SI
+
+	Instalar software necesario:
+	$ sudo apt-get install python3-microstacknode
+	$ sudo apt-get install gpsd gpsd-clients python-gps
+
+	Configuración de GPSD, Asegurar que tiene los valores
+	$ sudo nano /etc/inittab
+		Comentar la linea (#):
+		T0:23:respawn:/sbin/getty ­-L ttyAMA0 115200 vt100
+	$ sudo nano /etc/default/gpsd
+		START_DAEMON="true"
+		USBAUTO="false"
+		DEVICES="/dev/serial0"
+		GPSD_OPTIONS="-n -G"     (¿Quito -G???)
+	$ sudo nano /boot/cmdline.txt
+		Eliminar la entrada:
+			console=serial0,115200
+
+		dwc_otg.lpm_enable=0 console=ttyAMA0,115200 root=PARTUUID=44292084-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait
+	$ sudo nano /boot/config.txt
+		Asegurar que tiene los valores:
+		enable_uart=1
+		dtoverlay=pi3-miniuart-bt
+	$ sudo dpkg-reconfigure gpsd
+
+	Deshabilitar la consola:
+	$ sudo systemctl stop serial-getty@ttyS0.service
+	$ sudo systemctl disable serial-getty@ttyS0.service
+
+	Reiniciar
+	$ sudo reboot
+
+	Listar dispositivos
+	$ sudo ls -l /dev
+		lrwxrwxrwx 1 root root           7 Dec 16 21:15 serial0 -> ttyAMA0
+		lrwxrwxrwx 1 root root           5 Dec 16 21:15 serial1 -> ttyS0
+
+	App Cliente de GPS
+	$ cgps -s
+
+	Monitorizar GPS
+	$ gpsmon
+
+	App que lee del GPS y genera un fichero con lecturas:
+	$ gpxlogger -f test.gpx
+
+	App propia
+	$ sudo apt-get install librxtx-java
+	$ sudo ln -s /dev/ttyAMA0 /dev/ttyS80
+	$ sudo java -Djava.library.path=/usr/lib/jni -jar canbus-0.0.1.jar
+
+	Remote debug:
+	$ sudo ln -s /dev/ttyAMA0 /dev/ttyS80
+	$ sudo java -Xdebug -Xrunjdwp:transport=dt_socket,address=8998,server=y -Djava.library.path=/usr/lib/jni -jar canbus-0.0.1.jar
+
+
+
+	Otra forma de leer del GPS:
+	$ sudo grep GPRMC /dev/ttyAMA0
+	$ sudo cat /dev/ttyAMA0
+
+
+InputStream read
+Í$GPZDA,091701.000,18,12,2017,,*56
+$GPRMC,091701.000,A,4024.2166,N,00339.8159,W,1.02,74.85,181217,,,A*4E
+$GPGGA,091701.000,4024.2166,N,00339.8159,W,1,7,1.07,610.9,M,51.7,M,,*41
+$GPGSA,A,3,09,31,19,22,23,17,01,,,,,,1.39,1.07,0.89*0B
+$GPTXT,01,01,02,ANTSTATUS=OPEN*2B
+$GPZDA,091702.000,18,12,2017,,*55
+$GPRMC,091702.000,A,4024.2165,N,00339.8165,W,1.01,68.43,181217,,,A*45
+$GPGGA,091702.000,4024.2165,N,00339.8165,W,1,7,1.07,610.8,M,51.7,M,,*4F
+$GPGSA,A,3,09,31,19,22,23,17,01,,,,,,1.39,1.07,0.89*0B
+$GPTXT,01,01,02,ANTSTATUS=OPEN*2B
+$GPZDA,091703.000,18,12,2017,,*54
+$GPRMC,091703.000,A,4024.2163,N,00339.8171,W,0.98,66.96,181217,,,A*40
+$GPGGA,091703.000,4024.2163,N,00339.8171,W,1,7,1.07,610.8,M,51.7,M,,*4D
+$GPGSA,A,3,09,31,19,22,23,17,01,,,,,,1.39,1.07,0.89*0B
+$GPTXT,01,01,02,ANTSTATUS=OPEN*2B
+
+
+
+
+*********************************************************************************************************
+
+GPS KEYESTORE
+
+$ sudo nano /boot/config.txt
+	Añadir:
+	dtoverlay=pi3-miniuart-bt
+	enable_uart=1
+
+$ sudo nano /boot/cmdline.txt
+	Añadir:
+	console=ttyAMA0,115200
+
+$ sudo nano /lib/systemd/system/hciuart.service
+	Añadir:
+	ExecStart=/usr/bin/hciattach /dev/ttyAMA0 bcm43xx 115200 noflow -
+
+$ sudo reboot
+
+$ sudo apt-get install minicom
+$ sudo minicom -b 9600 -o -D /dev/ttyAMA0
+
+Nota: Se sale de minicom pulsando Ctrl-A y despues X (eXit)
+
+$ sudo raspi-config
+	Serial: No/Yes (esto hace que funcione OK el minicom)
+$ sudo reboot
+
+SOLO CON ESTO YA FUNCIONA!!!
+
+
+
+SW necesario:
+$ sudo apt-get install gpsd gpsd-clients python-gps
+$ sudo apt-get install librxtx-java
+
+Si configuro esto, gpsmon deja de funcionar, y lo hacen cgps y gpsmon
+$ sudo nano /etc/default/gpsd
+	START_DAEMON="true"
+	USBAUTO="false"
+	DEVICES="/dev/serial0"
+	GPSD_OPTIONS="-n -G"     (¿Quito -G???)
+
+Deshabilitar la consola:
+$ sudo systemctl stop serial-getty@ttyS0.service
+$ sudo systemctl disable serial-getty@ttyS0.service
+
+Ejecutar app java
+$ sudo ln -s /dev/ttyAMA0 /dev/ttyS80
+$ sudo java -Djava.library.path=/usr/lib/jni -jar canbus-0.0.1.jar

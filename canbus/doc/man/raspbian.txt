@@ -1,0 +1,250 @@
+****************************************************************************************************************
+
+HABILITAR WIFI
+	https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md
+	https://raspberrypi.stackexchange.com/questions/37920/how-do-i-set-up-networking-wifi-static-ip-address
+
+****************************************************************************************************************
+
+HABILITAR BLUETOOTH
+	https://www.cnet.com/how-to/how-to-setup-bluetooth-on-a-raspberry-pi-3/
+	https://lifehacker.com/everything-you-need-to-set-up-bluetooth-on-the-raspberr-1768482065
+
+	Motorola: 24:DA:9B:13:20:84
+	TV: B8:BB:AF:F9:B9:BB
+	raspberry: B8:27:EB:46:2D:EF
+	Toshiba: 64:5A:04:C1:C3:97
+
+****************************************************************************************************************
+
+IDIOMA DE TECLADO
+	https://www.raspberrypi.org/documentation/configuration/localisation.md
+
+****************************************************************************************************************
+
+CREAR IMAGEN PARA CLONAR
+	https://raspberrypi.stackexchange.com/questions/311/how-do-i-backup-my-raspberry-pi
+
+****************************************************************************************************************
+
+IP RASPBERRY
+	$ hostname -I
+
+****************************************************************************************************************
+
+BLUECOVE (BLUETOOTH EN JAVA)
+	http://www.bluecove.org
+	https://www.raspberrypi.org/forums/viewtopic.php?f=81&t=58758
+
+****************************************************************************************************************
+
+ECLIPSE KURA
+	http://eclipse.github.io/kura/intro/raspberry-pi-quick-start.html
+	http://mvnrepository.com/search?q=tinyb
+
+****************************************************************************************************************
+
+BUSCAR EQUIPOS RED LOCAL
+	$ nmap -sP 192.168.1.0/24
+
+****************************************************************************************************************
+
+TINYB
+	http://www.martinnaughton.com/2017/07/install-intel-tinyb-java-bluetooth.html
+
+	Ejemplo:
+	$ java -Djava.library.path=./tinyb -jar canbus-0.0.1-SNAPSHOT.jar 24:DA:9B:13:20:84
+
+****************************************************************************************************************
+
+HACER BLUETOOTH VISIBLE
+	https://raspberrypi.stackexchange.com/questions/7236/what-commands-do-i-use-to-make-bluetooth-discoverable-on-rpi-running-raspbian
+
+	Ayuda comandos
+	$ sudo hciconfig --help
+	Mostrar info bluetooth de la raspberry
+	$ sudo hciconfig -a
+	Hacer bluetooth visible
+	$ sudo hciconfig hci0 piscan
+	Hacer bluetooth invisible
+	$ sudo hciconfig hci0 noscan
+
+****************************************************************************************************************
+
+BLUECOVE
+	http://lukealderton.com/blog/posts/2015/january/raspberry-pi-bluetooth-using-bluecove-on-raspbian/
+
+	Compilar:
+	https://opendevice.atlassian.net/wiki/spaces/DOC/pages/1704030/Compile+bluecove+for+Raspberry+ARM
+
+	Ejecutar Ejemplo:
+	$ java -Djava.library.path=./bluecove -jar canbus-0.0.1-SNAPSHOT.jar
+
+****************************************************************************************************************
+
+ECLIPSE REMOTE DEBUG RASPBERRY JAVA
+	http://www.raspirecipes.org/archives/218
+	https://www.raspberrypi.org/forums/viewtopic.php?f=81&t=32100
+
+****************************************************************************************************************
+
+RASPBERRY SERIAL ID
+	https://raspberrypi.stackexchange.com/questions/42145/raspberry-pi-hardware-id
+	https://raspberrypi.stackexchange.com/questions/2086/how-do-i-get-the-serial-number
+
+****************************************************************************************************************
+
+POSTGRESQL
+	https://bpwalters.com/blog/setting-up-postgresql-on-raspberry-pi/
+	http://raspberrypg.org/2015/06/step-5-update-installing-postgresql-on-my-raspberry-pi-1-and-2/
+
+	Resultado instalacion:
+		Creating new cluster 9.6/main ...
+		  config /etc/postgresql/9.6/main
+		  data   /var/lib/postgresql/9.6/main
+		  locale en_GB.UTF-8
+		  socket /var/run/postgresql
+		  port   5432
+
+	Importar SQL dump:
+	$ psql -b -q  -U busdistance busdistance < busdistance_20171122.pgdump
+		-b: Mostrar errores
+		-q: Modo silencioso
+
+****************************************************************************************************************
+
+JETTY
+	http://bastide.org/2015/04/12/raspberry-pi-part-iii-setting-up-jetty/
+
+	Instalacion:
+	$ sudo apt-get install jetty9
+	$ sudo service jetty9 status
+	$ sudo service jetty9 start
+	$ sudo service jetty9 stop
+
+	Verificar desde navegador:
+	http://<maquina>:8080
+
+	Crear carpeta home para el usuario 'jetty'
+	$ sudo passwd jetty
+	$ sudo usermod -m -d /home/jetty -s /bin/bash jetty
+	$ sudo mkdir /home/jetty
+	$ sudo cp -rT /etc/skel /home/jetty         # to populate /home/jetty with default files and folders
+	$ sudo chown -R jetty:jetty /home/jetty
+
+****************************************************************************************************************
+
+
+
+
+$ sudo bluetoothctl
+[bluetooth]# power on
+[bluetooth]# agent on
+[bluetooth]# default-agent
+[bluetooth]# scan on
+[NEW] Device XX:XX:XX:XX:XX:XX David's AirPods
+[bluetooth]# scan off
+[bluetooth]# trust XX:XX:XX:XX:XX:XX
+[bluetooth]# pair XX:XX:XX:XX:XX:XX
+Attempting to pair with XX:XX:XX:XX:XX:XX
+[CHG] Device XX:XX:XX:XX:XX:XX Connected: yes
+[CHG] Device XX:XX:XX:XX:XX:XX UUIDs: ...
+[CHG] Device XX:XX:XX:XX:XX:XX UUIDs: ...
+[CHG] Device XX:XX:XX:XX:XX:XX UUIDs: ...
+[CHG] Device XX:XX:XX:XX:XX:XX UUIDs: ...
+[CHG] Device XX:XX:XX:XX:XX:XX UUIDs: ...
+[CHG] Device XX:XX:XX:XX:XX:XX UUIDs: ...
+[CHG] Device XX:XX:XX:XX:XX:XX UUIDs: ...
+[CHG] Device XX:XX:XX:XX:XX:XX UUIDs: ...
+[CHG] Device XX:XX:XX:XX:XX:XX Paired: yes
+Pairing successful
+[CHG] Device XX:XX:XX:XX:XX:XX Connected: no
+[bluetooth]# connect XX:XX:XX:XX:XX:XX
+Attempting to connect to XX:XX:XX:XX:XX:XX
+[CHG] Device XX:XX:XX:XX:XX:XX Connected: yes
+Connection successful
+[bluetooth]# quit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Controller B8:27:EB:46:2D:EF
+	Name: raspberrypi
+	Alias: raspberrypi
+	Class: 0x000000
+	Powered: yes
+	Discoverable: yes
+	Pairable: yes
+	UUID: Generic Attribute Profile (00001801-0000-1000-8000-00805f9b34fb)
+	UUID: A/V Remote Control        (0000110e-0000-1000-8000-00805f9b34fb)
+	UUID: PnP Information           (00001200-0000-1000-8000-00805f9b34fb)
+	UUID: Generic Access Profile    (00001800-0000-1000-8000-00805f9b34fb)
+	UUID: A/V Remote Control Target (0000110c-0000-1000-8000-00805f9b34fb)
+	Modalias: usb:v1D6Bp0246d052B
+	Discovering: no
+
+	B8:27:EB:46:2D:EF
+	00001801-0000-1000-8000-00805f9b34fb
+
+Device 64:5A:04:C1:C3:97
+	Name: localhost.localdomain
+	Alias: localhost.localdomain
+	Class: 0x0c010c
+	Icon: computer
+	Paired: yes
+	Trusted: yes
+	Blocked: no
+	Connected: no
+	LegacyPairing: no
+	UUID: Audio Source              (0000110a-0000-1000-8000-00805f9b34fb)
+	UUID: Audio Sink                (0000110b-0000-1000-8000-00805f9b34fb)
+	UUID: A/V Remote Control Target (0000110c-0000-1000-8000-00805f9b34fb)
+	UUID: A/V Remote Control        (0000110e-0000-1000-8000-00805f9b34fb)
+	UUID: Headset AG                (00001112-0000-1000-8000-00805f9b34fb)
+	UUID: PnP Information           (00001200-0000-1000-8000-00805f9b34fb)
+	UUID: Generic Access Profile    (00001800-0000-1000-8000-00805f9b34fb)
+	UUID: Generic Attribute Profile (00001801-0000-1000-8000-00805f9b34fb)
+	Modalias: usb:v1D6Bp0246d052C
+
+	64:5A:04:C1:C3:97
+	00001801-0000-1000-8000-00805f9b34fb
+
+Device 24:DA:9B:13:20:84
+	Name: MotoG3
+	Alias: MotoG3
+	Class: 0x5a020c
+	Icon: phone
+	Paired: yes
+	Trusted: yes
+	Blocked: no
+	Connected: no
+	LegacyPairing: no
+	UUID: OBEX Object Push          (00001105-0000-1000-8000-00805f9b34fb)
+	UUID: Audio Source              (0000110a-0000-1000-8000-00805f9b34fb)
+	UUID: A/V Remote Control Target (0000110c-0000-1000-8000-00805f9b34fb)
+	UUID: A/V Remote Control        (0000110e-0000-1000-8000-00805f9b34fb)
+	UUID: Headset AG                (00001112-0000-1000-8000-00805f9b34fb)
+	UUID: PANU                      (00001115-0000-1000-8000-00805f9b34fb)
+	UUID: NAP                       (00001116-0000-1000-8000-00805f9b34fb)
+	UUID: Handsfree Audio Gateway   (0000111f-0000-1000-8000-00805f9b34fb)
+	UUID: Phonebook Access Server   (0000112f-0000-1000-8000-00805f9b34fb)
+	UUID: Message Access Server     (00001132-0000-1000-8000-00805f9b34fb)
+	UUID: PnP Information           (00001200-0000-1000-8000-00805f9b34fb)
+	UUID: Generic Access Profile    (00001800-0000-1000-8000-00805f9b34fb)
+	UUID: Generic Attribute Profile (00001801-0000-1000-8000-00805f9b34fb)
+	Modalias: bluetooth:v001Dp1200d1436
+
+	24:DA:9B:13:20:84
+	00001801-0000-1000-8000-00805f9b34fb

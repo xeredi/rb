@@ -1,0 +1,31 @@
+{
+	0x4: DATSEQ {
+		DATSEQ {
+			UUID 0000010000001000800000805f9b34fb
+		}
+		DATSEQ {
+			UUID 0000000300001000800000805f9b34fb
+			U_INT_1 0xc
+		}
+		DATSEQ {
+			UUID 0000000800001000800000805f9b34fb
+		}
+	}
+	0x100:
+		STRING OBEX Object Push
+	0x1:
+		DATSEQ {
+			UUID 0000110500001000800000805f9b34fb
+		}
+	0x0:
+		U_INT_4 0x1000c
+}
+
+
+ID: 4, dataType: DATSEQ, value: java.util.Vector$1@1ab7765
+ID: 256, dataType: STRING, value: OBEX Object Push
+ID: 1, dataType: DATSEQ, value: java.util.Vector$1@128cdfa
+ID: 0, dataType: U_INT_4, value: 65548
+
+			24:DA:9B:13:20:84
+			UUID 00001105-0000-1000-8000-00805f9b34fb

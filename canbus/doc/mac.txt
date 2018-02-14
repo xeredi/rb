@@ -1,0 +1,8 @@
+RASPBERRY PI 3
+	ETH:	b8:27:eb:ec:87:45		192.168.1.102
+	WLAN:	b8:27:eb:b9:d2:10		192.168.1.103
+
+BLUETOOTH								Name/Alias
+	Raspberry: 		B8:27:EB:46:2D:EF	raspberrypi/raspberrypi
+	Toshiba:		64:5A:04:C1:C3:97	localhost.localdomain/localhost.localdomain
+	MotoG3:			24:DA:9B:13:20:84	MotoG3/MotoG3
