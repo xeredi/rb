@@ -161,14 +161,9 @@
             <version>${bluecove.version}</version>
         </dependency>
         <dependency>
-            <groupId>de.serviceflow</groupId>
-            <artifactId>lbt4j</artifactId>
-            <version>0.3.3</version>
-        </dependency>
-        <dependency>
-            <groupId>de.serviceflow</groupId>
-            <artifactId>lbt4j-lib</artifactId>
-            <version>0.3.3</version>
+            <groupId>com.github.pires</groupId>
+            <artifactId>obd-java-api</artifactId>
+            <version>${obd-java-api.version}</version>
         </dependency>
     </dependencies>
 

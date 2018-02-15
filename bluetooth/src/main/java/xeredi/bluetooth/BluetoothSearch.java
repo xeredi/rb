@@ -1,6 +1,8 @@
 package xeredi.bluetooth;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +17,11 @@ import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
+import javax.obex.Authenticator;
 import javax.obex.ClientSession;
 import javax.obex.HeaderSet;
+import javax.obex.Operation;
+import javax.obex.PasswordAuthentication;
 import javax.obex.ResponseCodes;
 
 import org.apache.commons.logging.Log;
@@ -26,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * The Class BluetoothSearch.
  */
-public final class BluetoothSearch implements DiscoveryListener {
+public final class BluetoothSearch implements DiscoveryListener, Authenticator {
 
 	/** The Constant LOG. */
 	private static final Log LOG = LogFactory.getLog(BluetoothSearch.class);
@@ -90,25 +95,6 @@ public final class BluetoothSearch implements DiscoveryListener {
 
 		if (LOG.isDebugEnabled()) {
 			LOG.debug(" - Address: " + btDevice.getBluetoothAddress() + " - Name: " + name);
-		}
-
-		if (btDevice.isAuthenticated()) {
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("Already authenticated");
-			}
-		} else {
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("Authenticate");
-			}
-
-			try {
-				btDevice.authenticate();
-
-				LOG.debug("Authentication OK");
-			} catch (final IOException ex) {
-				LOG.error(ex, ex);
-			}
-
 		}
 
 		remoteDeviceMap.put(name, btDevice);
@@ -208,6 +194,28 @@ public final class BluetoothSearch implements DiscoveryListener {
 		synchronized (lock) {
 			lock.notifyAll();
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public PasswordAuthentication onAuthenticationChallenge(String description, boolean isUserIdRequired,
+			boolean isFullAccess) {
+		LOG.info("onAuthenticationChallenge!!!!: " + " - description: " + description + " - isUserIdRequired: "
+				+ isUserIdRequired);
+
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public byte[] onAuthenticationResponse(final byte[] userName) {
+		LOG.info("onAuthenticationResponse!!!!");
+
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/**
@@ -367,6 +375,8 @@ public final class BluetoothSearch implements DiscoveryListener {
 
 		final ClientSession clientSession = (ClientSession) Connector.open(url);
 
+		clientSession.setAuthenticator(this);
+
 		final HeaderSet serverReply = clientSession.connect(null);
 
 		if (serverReply.getResponseCode() == ResponseCodes.OBEX_HTTP_OK) {
@@ -380,6 +390,53 @@ public final class BluetoothSearch implements DiscoveryListener {
 		}
 
 		return clientSession;
+	}
+
+	/**
+	 * Send message bluecove.
+	 *
+	 * @param clientSession
+	 *            the client session
+	 * @param message
+	 *            the message
+	 * @param maxMessages
+	 *            the max messages
+	 */
+	public void sendMessageBluecove(final ClientSession clientSession, final String message, final int maxMessages) {
+		final HeaderSet request = clientSession.createHeaderSet();
+
+		request.setHeader(HeaderSet.NAME, "Hello.txt");
+		request.setHeader(HeaderSet.TYPE, "text");
+
+		Operation putOperation = null;
+
+		try {
+			putOperation = clientSession.put(request);
+
+			try (final InputStream is = putOperation.openInputStream();
+					final OutputStream os = putOperation.openOutputStream()) {
+				for (int i = 0; i < maxMessages; i++) {
+
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Write");
+					}
+
+					os.write(message.getBytes());
+				}
+
+				os.flush();
+			}
+		} catch (final IOException ex) {
+			LOG.error(ex, ex);
+		} finally {
+			if (putOperation != null) {
+				try {
+					putOperation.close();
+				} catch (final IOException ex) {
+					LOG.fatal(ex, ex);
+				}
+			}
+		}
 	}
 
 	/**
@@ -405,13 +462,11 @@ public final class BluetoothSearch implements DiscoveryListener {
 
 		bluetoothSearch.searchDevicesBluecove(DiscoveryAgent.GIAC, true);
 
-		// if (LOG.isDebugEnabled()) {
-		// LOG.debug("LIAC");
-		// }
-		//
-		// bluetoothSearch.searchDevicesBluecove(DiscoveryAgent.LIAC, true);
+		// Canbus: 0x1101
+		// OBEX Object Push: 0x1105
+		// Shit: 0x0100
 
-		final UUID[] uuids = new UUID[] { new UUID(0x0100 /* 0x1105 */) }; // OBEX Object Push
+		final UUID[] uuids = new UUID[] { new UUID(0x0100) }; // OBEX Object Push
 		int[] attrIDs = new int[] { 0x0100 }; // Service name
 
 		if (LOG.isDebugEnabled()) {
@@ -427,6 +482,12 @@ public final class BluetoothSearch implements DiscoveryListener {
 				final ClientSession clientSession = bluetoothSearch.openConnectionBluecove(url);
 
 				if (LOG.isInfoEnabled()) {
+					LOG.info("Send Message");
+				}
+
+				bluetoothSearch.sendMessageBluecove(clientSession, "Hola, Caracola", 10);
+
+				if (LOG.isInfoEnabled()) {
 					LOG.info("Close Connection");
 				}
 
@@ -437,10 +498,16 @@ public final class BluetoothSearch implements DiscoveryListener {
 		}
 
 		{
-			final String url = "btspp://5CF370883424:12;authenticate=false;encrypt=false;master=false"; // PCG
+			final String url = "btgoep://5CF370883424:9;authenticate=false;encrypt=false;master=false"; // PCG
 
 			try {
 				final ClientSession clientSession = bluetoothSearch.openConnectionBluecove(url);
+
+				if (LOG.isInfoEnabled()) {
+					LOG.info("Send Message");
+				}
+
+				bluetoothSearch.sendMessageBluecove(clientSession, "Hola, Caracola", 10);
 
 				if (LOG.isInfoEnabled()) {
 					LOG.info("Close Connection");
