@@ -354,17 +354,25 @@ public final class CanbusReaderProcess extends RbProcess implements DiscoveryLis
 	 *            the arguments
 	 */
 	public static void main(final String[] args) {
-		LOG.info("Start proccess");
+		if (args.length > 0) {
+			System.out.println("Reading arguments");
 
-		try {
-			final CanbusReaderProcess process = new CanbusReaderProcess();
+			if ("--version".equals(args[0])) {
+				System.out.println("Version: " + ConfigurationUtil.getString(ConfigurationKey.app_version));
+			}
+		} else {
+			LOG.info("Start proccess. Release: " + ConfigurationUtil.getString(ConfigurationKey.app_version));
 
-			process.execute();
-		} catch (final Throwable ex) {
-			LOG.fatal(ex, ex);
+			try {
+				final CanbusReaderProcess process = new CanbusReaderProcess();
+
+				process.execute();
+			} catch (final Throwable ex) {
+				LOG.fatal(ex, ex);
+			}
+
+			LOG.info("End proccess");
 		}
-
-		LOG.info("End proccess");
 	}
 
 }

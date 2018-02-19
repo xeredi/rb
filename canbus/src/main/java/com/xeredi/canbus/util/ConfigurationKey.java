@@ -5,6 +5,8 @@ package com.xeredi.canbus.util;
  * The Enum ConfigurationKey.
  */
 public enum ConfigurationKey {
+	/** The app version. */
+	app_version,
 
 	/** The mqtt server url. */
 	mqtt_server_url,

@@ -1,0 +1,9 @@
+*******************************************************************************************************
+INSTALACION DE PROYECTOS EN RASPBIAN
+
+	- Instalar un archivo deb copiado localmente
+		$ sudo dpkg -i <deb file>
+		$ sudo dpkg -i canbus_0.0.1_all.deb
+	- Desinstalar un archivo deb copiado localmente
+		$ sudo dpkg -r <appname>
+		$ sudo dpkg -r canbus

@@ -8,7 +8,7 @@
 
 
     <properties>
-        <raspberry.ip>192.168.1.159</raspberry.ip>
+        <raspberry.ip>192.168.1.102</raspberry.ip>
         <raspberry.user>transport</raspberry.user>
         <raspberry.password>transport</raspberry.password>
         <raspberry.deployPath>/home/transport</raspberry.deployPath>
@@ -37,6 +37,7 @@
         <ant-jsch.version>1.10.1</ant-jsch.version>
         <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
         <maven-project-info-reports-plugin.dependencyLocationsEnabled>false</maven-project-info-reports-plugin.dependencyLocationsEnabled>
+        <jdeb.version>1.6</jdeb.version>
     </properties>
 
     <profiles>
@@ -49,6 +50,8 @@
     </profiles>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -95,6 +98,44 @@
             </plugin>
 
             <plugin>
+                <artifactId>jdeb</artifactId>
+                <groupId>org.vafer</groupId>
+                <version>${jdeb.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jdeb</goal>
+                        </goals>
+                        <configuration>
+                            <deb>${project.build.directory}/${project.name}.deb</deb>
+                            <dataSet>
+                                <data>
+                                    <type>template</type>
+                                    <paths>
+                                        <path>/opt/${project.name}/conf</path>
+                                        <path>/opt/${project.name}/log</path>
+                                        <path>/opt/${project.name}/queue</path>
+                                    </paths>
+                                    <mapper>
+                                        <type>perm</type>
+                                    </mapper>
+                                </data>
+                                <data>
+                                    <src>${project.build.directory}/${project.build.finalName}.jar</src>
+                                    <type>file</type>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/opt/${project.name}</prefix>
+                                    </mapper>
+                                </data>
+                            </dataSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>${maven-antrun-plugin.version}</version>
@@ -107,8 +148,12 @@
                         </goals>
                         <configuration>
                             <target>
-                                <scp localFile="${project.basedir}/target/canbus-0.0.1.jar" remoteToFile="${raspberry.user}@${raspberry.ip}:${raspberry.deployPath}"
-                                    verbose="true" password="${raspberry.password}" trust="true">
+                                <scp localFile="${project.basedir}/target/${project.name}.jar" remoteToFile="${raspberry.user}@${raspberry.ip}:${raspberry.deployPath}"
+                                    verbose="false" password="${raspberry.password}" trust="true">
+                                </scp>
+                                <scp localFile="${project.basedir}/target/${project.name}.deb"
+                                    remoteToFile="${raspberry.user}@${raspberry.ip}:${raspberry.deployPath}" verbose="false"
+                                    password="${raspberry.password}" trust="true">
                                 </scp>
                             </target>
                         </configuration>
@@ -126,32 +171,6 @@
                         <version>${ant-jsch.version}</version>
                     </dependency>
                 </dependencies>
-            </plugin>
-
-            <plugin>
-                <artifactId>jdeb</artifactId>
-                <groupId>org.vafer</groupId>
-                <version>1.5</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jdeb</goal>
-                        </goals>
-                        <configuration>
-                            <dataSet>
-                                <data>
-                                    <src>${project.build.directory}/${project.build.finalName}.jar</src>
-                                    <type>file</type>
-                                    <mapper>
-                                        <type>perm</type>
-                                        <prefix>/usr/share/jdeb/lib</prefix>
-                                    </mapper>
-                                </data>
-                            </dataSet>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
