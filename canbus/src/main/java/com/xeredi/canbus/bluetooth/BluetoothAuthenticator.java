@@ -1,4 +1,4 @@
-package xeredi.bluetooth;
+package com.xeredi.canbus.bluetooth;
 
 import javax.obex.Authenticator;
 import javax.obex.PasswordAuthentication;

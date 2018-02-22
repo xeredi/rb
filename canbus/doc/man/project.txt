@@ -7,3 +7,203 @@ INSTALACION DE PROYECTOS EN RASPBIAN
 	- Desinstalar un archivo deb copiado localmente
 		$ sudo dpkg -r <appname>
 		$ sudo dpkg -r canbus
+
+	- Crear un repositorio apt en centos
+		https://github.com/cobbler/cobbler/wiki/Creating-custom-apt-repositories-in-centos-or-el-based-cobbler
+		http://troubleshootingrange.blogspot.com.es/2012/09/hosting-simple-apt-repository-on-centos.html
+		* Instalar paquetes para gestionar repositorios apt
+			$ yum install dpkg dpkg-devel dpkg-dev gnupg2 perl-TimeDate
+		* Creacion del sistema de ficheros:
+			$ mkdir -p /<rutaBase>/apt/pool/main
+			$ mkdir -p /<rutaBase>/apt/dists/stable/main/binary-i386
+			$ mkdir -p /<rutaBase>/apt/dists/stable/main/binary-amd64
+			$ mkdir -p /<rutaBase>/apt/dists/stable/main/binary-armhf
+
+			Ejemplo
+			$ mkdir -p /var/www/raspberry/apt/pool/main
+			$ mkdir -p /var/www/raspberry/apt/dists/stable/main/binary-armhf
+		* Copia de los paquetes
+			Todos los paquetes, sean de la arquitectura que sen, se copian a la carpeta "main"
+			$ cp <paquete>.deb /<rutaBase>/apt/pool/main
+			$ cp /home/xeredi/git/rb/canbus/target/*.deb /var/www/raspberry/apt/pool/main
+		* Crear clave GPG
+			$ gpg --gen-key
+				Tipo de clave por defecto (RSA and RSA)
+				Tamaño de clave por defecto (2048 bits)
+				Expiracion de clave por defecto (no expira)
+
+				ID para identificar clave:
+					Nombre: xeredi
+					Email: xeredi@gmail.com
+					Comments:
+
+				Introducimos O (OK)
+				Introducimos contraseña para proteger la clave
+			Obtencion del UID
+			$ gpg --list-keys
+				/root/.gnupg/pubring.gpg
+				------------------------
+				pub   2048R/2B8D0D25 2018-02-19
+				uid                  xeredi <xeredi@gmail.com>
+
+				El UID es la parte posterior a / (en este caso, 2B8D0D25)
+
+			Exportación de la clave pública, y la importamos en un keyring que pueda ser descargado en los clientes
+			$ gpg --export -a 2B8D0D25 > ~/repo.key
+			$ gpg --no-default-keyring --keyring /var/www/raspberry/apt/myrepo.gpg --import ~/repo.key
+			$ rm ~/repo.key
+		* Creación del repositorio:
+			Crear el fichero /var/www/raspberry/apt/reindex_stable.sh (modificar el UID), con el contenido:
+
+#!/bin/bash
+
+GPG_NAME=2B8D0D25
+REPONAME=stable
+VERSION=7.0
+
+for bindir in `find dists/${REPONAME} -type d -name "binary*"`; do
+    arch=`echo $bindir|cut -d"-" -f 2`
+    echo "Processing ${bindir} with arch ${arch}"
+
+    overrides_file=/tmp/overrides
+    package_file=$bindir/Packages
+    release_file=$bindir/Release
+
+    # Create simple overrides file to stop warnings
+    cat /dev/null > $overrides_file
+    for pkg in `ls pool/main/ | grep -E "(all|${arch})\.deb"`; do
+        pkg_name=`/usr/bin/dpkg-deb -f pool/main/${pkg} Package`
+        echo "${pkg_name} Priority extra" >> $overrides_file
+    done
+
+    # Index of packages is written to Packages which is also zipped
+    dpkg-scanpackages -a ${arch} pool/main $overrides_file > $package_file
+    # The line above is also commonly written as:
+    # dpkg-scanpackages -a ${arch} pool/main /dev/null > $package_file
+    gzip -9c $package_file > ${package_file}.gz
+    bzip2 -c $package_file > ${package_file}.bz2
+
+    # Cleanup
+    rm $overrides_file
+done
+
+# Release info goes into Release & Release.gpg which includes an md5 & sha1 hash of Packages.*
+# Generate & sign release file
+cd dists/${REPONAME}
+cat > Release <<ENDRELEASE
+Suite: ${REPONAME}
+Version: ${VERSION}
+Component: main
+Origin: My Company
+Label: My Example Repo
+Architecture: i386 amd64
+Date: `date`
+ENDRELEASE
+
+# Generate hashes
+echo "MD5Sum:" >> Release
+for hashme in `find main -type f`; do
+    md5=`openssl dgst -md5 ${hashme}|cut -d" " -f 2`
+    size=`stat -c %s ${hashme}`
+    echo " ${md5} ${size} ${hashme}" >> Release
+done
+echo "SHA1:" >> Release
+for hashme in `find main -type f`; do
+    sha1=`openssl dgst -sha1 ${hashme}|cut -d" " -f 2`
+    size=`stat -c %s ${hashme}`
+    echo " ${sha1} ${size} ${hashme}" >> Release
+done
+
+# Sign!
+gpg --yes -u $GPG_NAME --sign -bao Release.gpg Release
+cd -
+
+			Ejecucion del script
+
+		* Configurar nginx
+			https://www.digitalocean.com/community/tutorials/how-to-set-up-nginx-server-blocks-on-centos-7
+
+			$ nano /var/www/raspberry/index.html
+				<html>
+				  <head>
+				    <title>Welcome to Raspberry Repo</title>
+				  </head>
+				  <body>
+				    <h1>Success! The Raspberry Repo server block is working!</h1>
+				  </body>
+				</html>
+			$ mkdir /etc/nginx/sites-available
+			$ mkdir /etc/nginx/sites-enabled
+			$ nano /etc/nginx/nginx.conf
+				Añadir al final del bloque http {}:
+
+				include /etc/nginx/sites-enabled/*.conf;
+				server_names_hash_bucket_size 64;
+			$ nano /etc/nginx/sites-available/raspberry.conf
+
+server {
+	listen       80;
+	server_name  raspberry;
+	access_log  /var/www/logs/raspberry.access.log;
+	error_log  /var/www/logs/raspberry.error.log error;
+	root   /var/www/raspberry;
+	index  index.html index.htm;
+
+	location /apt {
+               autoindex on;
+    }
+}
+
+			$ chmod 660  /etc/nginx/sites-available/raspberry.conf
+			$ chgrp nginx  /etc/nginx/sites-available/raspberry.conf
+			# mkdir /var/www/logs
+			# chmod -R 660 /var/www/logs
+			# chgrp nginx /var/www/logs
+			# chmod 755 /var/www
+			# chmod -R 755 /var/www/raspberry
+
+			$ ln -s /etc/nginx/sites-available/raspberry.conf /etc/nginx/sites-enabled/raspberry.conf
+			$ systemctl restart nginx
+			$ nano /etc/hosts
+				192.168.1.101 raspberry
+
+			OJOOOOOOOOOOOOOOOOOOOOOOOOOOOo Chapu para que arranque
+			$ getenforce
+			Enforcing
+			$ setenforce Permissive
+
+		Para poder conectar desde otras maquinas, abrir puerto 80 en firewall
+		$ firewall-cmd --zone=public --add-port=80/tcp --permanent
+		$ firewall-cmd --reload
+
+		Configurar la maquina desde la que deseamos acceder (habrá que meterlo en la raspberry tambien)
+		$ nano /etc/hosts
+			192.168.1.101 raspberry
+
+		Añadir repositorio a la máquina desde la que deseamos acceder
+		OJOOOOOOOOOOOOOOOOOOOOOOOOOOOO Se supone que nginx no da permiso de acceso a los archivos
+		$ echo "deb http://raspberry/apt/ stable main" | sudo tee --append /etc/apt/sources.list
+		$ wget -O - -q http://raspberry/apt/myrepo.gpg | sudo apt-key add -
+
+
+
+Part 6: Apache
+Install apache and create the following /etc/httpd/conf.d/apt.conf and restart.
+<VirtualHost *:80>
+    ServerName apt.example.com
+    DocumentRoot /var/www/apt
+    <Directory /var/www/apt>
+        Order allow,deny
+        Allow from all
+        Options +Indexes
+    </Directory>
+</VirtualHost>
+Part 7: Client Config
+The last part is to get your servers to use this repo. This involves providing a sources.list entry and the public key.
+Add apt source:
+# echo "deb http://apt.example.com/ stable main" > /etc/apt/sources.list.d/myrepo.list
+Get the GPG key:
+# cd /etc/apt/trusted.gpg.d/
+# wget http://apt.example.com/myrepo.gpg
+
+

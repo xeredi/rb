@@ -67,7 +67,7 @@ GPS MICROSTACK
 	App propia
 	$ sudo apt-get install librxtx-java
 	$ sudo ln -s /dev/ttyAMA0 /dev/ttyS80
-	$ sudo java -Djava.library.path=/usr/lib/jni -jar canbus-0.0.1.jar
+	$ sudo java -Djava.library.path=/usr/lib/jni -jar canbus.jar
 
 	Remote debug:
 	$ sudo ln -s /dev/ttyAMA0 /dev/ttyS80

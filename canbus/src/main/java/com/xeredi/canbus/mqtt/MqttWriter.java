@@ -17,12 +17,9 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.xeredi.canbus.util.ConfigurationKey;
 import com.xeredi.canbus.util.ConfigurationUtil;
-
-import lombok.NonNull;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -66,7 +63,7 @@ public final class MqttWriter {
 			TOPIC.placa_arranque_data);
 
 	/** The Constant OBJECT_MAPPER. */
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+	private static final Gson OBJECT_MAPPER = new Gson();
 
 	/** The Constant TOPIC_PENDING_MAP. */
 	private static final Map<TOPIC, Boolean> TOPIC_PENDING_MAP = new HashMap<>();
@@ -91,7 +88,7 @@ public final class MqttWriter {
 	 * @throws MqttException
 	 *             the mqtt exception
 	 */
-	private MqttWriter(final @NonNull String aclientId) throws MqttException {
+	private MqttWriter(final String aclientId) throws MqttException {
 		super();
 
 		this.nextConnectionTry = Calendar.getInstance();
@@ -109,7 +106,7 @@ public final class MqttWriter {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public static MqttWriter getInstance(final @NonNull String clientId) throws MqttException, IOException {
+	public static MqttWriter getInstance(final String clientId) throws MqttException, IOException {
 		if (MQTT_WRITER == null) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("MqttWriter Initialize");
@@ -146,7 +143,7 @@ public final class MqttWriter {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public void sendGpsData(final @NonNull String message) throws IOException {
+	public void sendGpsData(final String message) throws IOException {
 		sendMessage(TOPIC.gps_data, message);
 	}
 
@@ -158,7 +155,7 @@ public final class MqttWriter {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public void sendPlacaPingData(final @NonNull String message) throws IOException {
+	public void sendPlacaPingData(final String message) throws IOException {
 		sendMessage(TOPIC.placa_ping_data, message);
 	}
 
@@ -170,7 +167,7 @@ public final class MqttWriter {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public void sendPlacaArranqueData(final @NonNull String message) throws IOException {
+	public void sendPlacaArranqueData(final String message) throws IOException {
 		sendMessage(TOPIC.placa_arranque_data, message);
 	}
 
@@ -184,7 +181,7 @@ public final class MqttWriter {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	private void sendMessage(final @NonNull TOPIC topic, final @NonNull String message) throws IOException {
+	private void sendMessage(final TOPIC topic, final String message) throws IOException {
 		final File topicFile = TOPIC_FILE_MAP.get(topic);
 
 		try {
@@ -225,7 +222,7 @@ public final class MqttWriter {
 
 							mqttMessage.setQos(0);
 							mqttMessage.setPayload(
-									OBJECT_MAPPER.writeValueAsBytes(new MqttData(mqttClient.getClientId(), messages)));
+									OBJECT_MAPPER.toJson(new MqttData(mqttClient.getClientId(), messages)).getBytes());
 
 							mqttClient.publish(topic.name(), mqttMessage);
 
@@ -246,7 +243,7 @@ public final class MqttWriter {
 
 				mqttMessage.setQos(0);
 				mqttMessage.setPayload(OBJECT_MAPPER
-						.writeValueAsBytes(new MqttData(mqttClient.getClientId(), Arrays.asList(message))));
+						.toJson(new MqttData(mqttClient.getClientId(), Arrays.asList(message))).getBytes());
 
 				mqttClient.publish(topic.name(), mqttMessage);
 
@@ -255,9 +252,6 @@ public final class MqttWriter {
 				FileUtils.writeLines(topicFile, Arrays.asList(message), true);
 				TOPIC_PENDING_MAP.put(topic, true);
 			}
-		} catch (final JsonProcessingException ex) {
-			LOG.error(ex.getMessage());
-			LOG.error("message: " + message);
 		} catch (final IOException ex) {
 			throw ex;
 		} catch (final Throwable ex) {

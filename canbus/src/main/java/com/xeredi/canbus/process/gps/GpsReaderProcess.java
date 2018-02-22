@@ -19,7 +19,6 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
-import lombok.NonNull;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -212,7 +211,7 @@ public final class GpsReaderProcess extends RbProcess implements SerialPortEvent
 	 *            the segment
 	 * @return true, if is valid segment
 	 */
-	private boolean isValidSegment(final @NonNull String segment) {
+	private boolean isValidSegment(final String segment) {
 		if (!segment.startsWith(SEGMENT_PREFIX)) {
 			return false;
 		}

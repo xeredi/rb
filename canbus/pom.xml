@@ -78,8 +78,8 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <!-- mainClass>com.xeredi.canbus.Main</mainClass -->
-                                    <mainClass>com.xeredi.canbus.process.canbus.CanbusReaderProcess</mainClass>
+                                    <mainClass>com.xeredi.canbus.Main</mainClass>
+                                    <!-- mainClass>com.xeredi.canbus.process.canbus.CanbusReaderProcess</mainClass -->
                                 </transformer>
                             </transformers>
                             <filters>
@@ -108,7 +108,6 @@
                             <goal>jdeb</goal>
                         </goals>
                         <configuration>
-                            <deb>${project.build.directory}/${project.name}.deb</deb>
                             <dataSet>
                                 <data>
                                     <type>template</type>
@@ -151,7 +150,7 @@
                                 <scp localFile="${project.basedir}/target/${project.name}.jar" remoteToFile="${raspberry.user}@${raspberry.ip}:${raspberry.deployPath}"
                                     verbose="false" password="${raspberry.password}" trust="true">
                                 </scp>
-                                <scp localFile="${project.basedir}/target/${project.name}.deb"
+                                <scp localFile="${project.basedir}/target/${project.name}_${project.version}_all.deb"
                                     remoteToFile="${raspberry.user}@${raspberry.ip}:${raspberry.deployPath}" verbose="false"
                                     password="${raspberry.password}" trust="true">
                                 </scp>
@@ -210,11 +209,13 @@
             <artifactId>commons-io</artifactId>
             <version>${commons-io.version}</version>
         </dependency>
+<!--
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
         </dependency>
+ -->
         <dependency>
             <groupId>org.rxtx</groupId>
             <artifactId>rxtx-osgi</artifactId>
@@ -225,6 +226,7 @@
             <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
             <version>${mqttv3.version}</version>
         </dependency>
+<!--
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -235,15 +237,37 @@
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>
+ -->
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
             <version>${quartz.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.mchange</groupId>
+                    <artifactId>c3p0</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.mchange</groupId>
+                    <artifactId>mchange-commons-java</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.zaxxer</groupId>
+                    <artifactId>HikariCP-java6</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz-jobs</artifactId>
             <version>${quartz.version}</version>
+
+<!--
+            com.mchange:c3p0:jar:0.9.5.2 (compile) [Information]
+com.mchange:mchange-commons-java:jar:0.2.11 (compile) [Information]
+com.zaxxer:HikariCP-java6:jar:2.3.13 (compile) [Information]
+org.slf4j:slf4j-api:jar:1.7.7 (compile) [Information]
+-->
         </dependency>
         <dependency>
             <groupId>javax.transaction</groupId>
@@ -255,7 +279,6 @@
             <artifactId>commons-beanutils</artifactId>
             <version>${commons-beanutils.version}</version>
         </dependency>
-
         <dependency>
             <groupId>net.sf.bluecove</groupId>
             <artifactId>bluecove</artifactId>
@@ -276,11 +299,15 @@
             <artifactId>obd-java-api</artifactId>
             <version>${obd-java-api.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.pi4j</groupId>
             <artifactId>pi4j-core</artifactId>
             <version>${pi4j-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.2</version>
         </dependency>
     </dependencies>
 

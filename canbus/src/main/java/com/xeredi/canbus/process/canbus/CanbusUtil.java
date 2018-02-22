@@ -10,8 +10,6 @@ import javax.bluetooth.ServiceRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import lombok.NonNull;
-
 // TODO: Auto-generated Javadoc
 /**
  * The Class CanbusUtil.
@@ -28,8 +26,11 @@ public final class CanbusUtil {
 	 *            the device
 	 * @return the name
 	 */
-	public static String getName(final @NonNull RemoteDevice device) {
+	public static String getName(final RemoteDevice device) {
 		String name = null;
+
+		int i = 0;
+		final int max = 10;
 
 		do {
 			try {
@@ -37,15 +38,17 @@ public final class CanbusUtil {
 			} catch (final IOException ex) {
 				LOG.warn(ex.getMessage() + ", address: " + device.getBluetoothAddress());
 
+				i++;
+
 				try {
 					Thread.sleep(500);
 				} catch (final InterruptedException e) {
 					LOG.fatal(e, e);
 				}
 			}
-		} while (name == null);
+		} while (name == null && i < max);
 
-		return name;
+		return name == null ? device.getBluetoothAddress() : name;
 	}
 
 	/**
@@ -55,7 +58,7 @@ public final class CanbusUtil {
 	 *            the record
 	 * @return the uuid
 	 */
-	public static String getUUID(final @NonNull ServiceRecord record) {
+	public static String getUUID(final ServiceRecord record) {
 		String uuid = null;
 
 		final DataElement serviceUUID = (DataElement) ((Enumeration) record.getAttributeValue(0x0001).getValue())
@@ -73,7 +76,7 @@ public final class CanbusUtil {
 	 *            the record
 	 * @return the connection URL
 	 */
-	public static String getConnectionURL(final @NonNull ServiceRecord record) {
+	public static String getConnectionURL(final ServiceRecord record) {
 		return record.getConnectionURL(ServiceRecord.NOAUTHENTICATE_NOENCRYPT, false);
 	}
 

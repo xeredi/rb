@@ -39,6 +39,8 @@
 
 
     <build>
+        <finalName>${project.artifactId}</finalName>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -97,8 +99,8 @@
                         </goals>
                         <configuration>
                             <target>
-                                <scp localFile="${project.basedir}/target/bluetooth-0.0.1.jar" remoteToFile="${raspberry.user}@${raspberry.ip}:${raspberry.deployPath}"
-                                    verbose="true" password="${raspberry.password}" trust="true">
+                                <scp localFile="${project.basedir}/target/${project.name}.jar" remoteToFile="${raspberry.user}@${raspberry.ip}:${raspberry.deployPath}"
+                                    verbose="false" password="${raspberry.password}" trust="true">
                                 </scp>
                             </target>
                         </configuration>

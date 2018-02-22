@@ -43,6 +43,8 @@ public enum ConfigurationKey {
 	canbus_file_config,
 	/** The canbus url. */
 	canbus_url,
+	/** The canbus sleep ms. */
+	canbus_sleep_ms,
 
 	;
 }

@@ -1,10 +1,9 @@
-package xeredi.bluetooth;
+package com.xeredi.canbus.bluetooth;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.bluetooth.BluetoothStateException;
@@ -21,8 +20,6 @@ import javax.obex.ResponseCodes;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import xeredi.obd.CanbusReader;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -55,7 +52,7 @@ public final class BluetoothSearch {
 	/**
 	 * Sets the local device bluecove.
 	 */
-	private void setLocalDeviceBluecove() {
+	public void setLocalDeviceBluecove() {
 		try {
 			localDevice = LocalDevice.getLocalDevice();
 
@@ -77,7 +74,7 @@ public final class BluetoothSearch {
 	 * @param attrIds
 	 *            the attr ids
 	 */
-	private void searchServicesBluecove(final UUID[] uuids, final int[] attrIds) {
+	public void searchServicesBluecove(final UUID[] uuids, final int[] attrIds) {
 		LOG.info("Search Services");
 
 		for (final String name : remoteDeviceMap.keySet()) {
@@ -261,90 +258,5 @@ public final class BluetoothSearch {
 		} catch (final IOException ex) {
 			LOG.error(ex);
 		}
-	}
-
-	/**
-	 * The main method.
-	 *
-	 * @param args
-	 *            the arguments
-	 */
-	public static void main(final String[] args) {
-		LOG.info("Start");
-
-		final BluetoothSearch bluetoothSearch = new BluetoothSearch();
-
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("Bluecove Search");
-		}
-
-		bluetoothSearch.setLocalDeviceBluecove();
-
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("GIAC");
-		}
-
-		bluetoothSearch.searchDevicesBluecove(DiscoveryAgent.GIAC, true);
-
-		// Canbus: 0x1101
-		// OBEX Object Push: 0x1105
-		// Shit: 0x0100
-
-		final UUID[] uuids = new UUID[] { new UUID(0x0100) }; // OBEX Object Push
-		int[] attrIDs = new int[] { 0x0100 }; // Service name
-
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("SearchService with UUID: " + uuids[0] + " and attrId: " + attrIDs[0]);
-		}
-
-		bluetoothSearch.searchServicesBluecove(uuids, attrIDs);
-
-		final String urlMotoG = "btgoep://24DA9B132084:12;authenticate=false;encrypt=false;master=false";
-		final String urlPC = "btgoep://5CF370883424:9;authenticate=false;encrypt=false;master=false";
-
-		bluetoothSearch.sendMessageBluecove(urlMotoG, "Hola, Caracola!!", 10);
-		bluetoothSearch.sendMessageBluecove(urlPC, "Hola, Caracola!!", 10);
-
-		try {
-			Thread.sleep(5000L);
-		} catch (final InterruptedException ex) {
-			LOG.fatal(ex, ex);
-		}
-
-		LOG.info("Read CAN/BUS");
-
-		ClientSession session = null;
-
-		try {
-			session = bluetoothSearch.openConnectionBluecove(urlPC);
-
-			final CanbusReader canbusReader = new CanbusReader(session);
-
-			for (int i = 0; i < 5; i++) {
-				try {
-					final Map<String, List<Byte>> canbusData = canbusReader.read();
-
-					if (LOG.isDebugEnabled()) {
-						LOG.debug("CAN/BUS data: " + canbusData.toString());
-					}
-				} catch (final IOException ex) {
-					LOG.error(ex, ex);
-				}
-			}
-		} catch (final IOException ex) {
-			LOG.error(ex, ex);
-		} catch (final Throwable ex) {
-			LOG.fatal(ex, ex);
-		} finally {
-			if (session != null) {
-				try {
-					session.close();
-				} catch (final IOException ex) {
-					LOG.error(ex, ex);
-				}
-			}
-		}
-
-		LOG.info("End");
 	}
 }

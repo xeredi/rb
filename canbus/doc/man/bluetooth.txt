@@ -17,6 +17,8 @@ BLUETOOTH
 	$ sudo service bluetooth status
 	Información extendida (puede dar info de errores)
 	$ sudo service bluetooth status -l
+	Iniciar servicio bluetooth
+	$ sudo service bluetooth start
 
 	Eliminar error de SAP al ver estado del servicio bluetooth:
 	https://raspberrypi.stackexchange.com/questions/40839/sap-error-on-bluetooth-service-status
@@ -96,7 +98,7 @@ TRANSFERIR ARCHIVOS ENTRE PC Y RASPBERRY
 		https://www.youtube.com/watch?v=GSMThZINNsc
 	$ sudo apt-get autoremove
 	$ sudo apt-get install pi-bluetooth
-	$ sudo apt-get install bluetooth bluez bluez-utils blueman minicom
+	$ sudo apt-get install bluetooth bluez blueman minicom
 	$ lsusb
 	$ sudo nano /etc/bluetooth/main.conf
 		Añadir la línea:
@@ -164,39 +166,6 @@ CONEXION POR EL PUERTO SERIE
 	[bluetooth]# pair 64:5A:04:C1:C3:97
 
 	Tanto en móvil como en raspberry nos pedirá que confirmemos contraseña, decimos que si, y listo.
-
-****************************************************************************************************************
-LBT4J
-
-	$ sudo apt-get install bluetooth bluez-tools bluez build-essential autoconf glib2.0 libglib2.0-dev libdbus-1-dev libudev-dev libical-dev libreadline-dev bluez
-	$ sudo apt-get install pulseaudio
-	$ sudo apt-get install pulseaudio-module-bluetooth
-
-	$ mkdir tmp
-	$ cd tmp
-	$ git clone https://github.com/olir/lbt4j-lib.git
-	$ git clone https://github.com/olir/lbt4j-lib.git --branch R0.3
-	$ cd lbt4j-lib
-	$ mvn install
-
-	$ sudo java -Djava.library.path=jni -jar canbus-0.0.1.jar
-
-
-12.	tar xf Downloads/bluez-5.40.tar.xz
-13.	sudo mv bluez-5.40 /opt
-14.	cd /opt/bluez-5.40
-15.	unzip ~/Downloads/3b07a1eb296862da889609a84f8e10b299b7442d.zip
-16.	git apply -v c8230c48ea24698527cd-3b07a1eb296862da889609a84f8e10b299b7442d/*
-17.	sudo ./configure --prefix=/usr \
-			--mandir=/usr/share/man \
-			--sysconfdir=/etc \
-			--localstatedir=/var \
-			--enable-experimental \
-			--enable-maintainer-mode
-18.	sudo make
-19.	sudo make install
-20.	sudo sed -i '/^ExecStart.*bluetoothd\s*$/ s/$/ --experimental/' /lib/systemd/system/bluetooth.service
-
 
 ****************************************************************************************************************
 CANBUS

@@ -1,0 +1,40 @@
+****************************************************************************************
+
+CANBUS
+
+- Partir de imagen limpia de raspbian
+- Conectar a raspberry
+	$ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no transport@192.168.1.102
+- Ver estado servicio bluetooth
+	$ sudo service bluetooth status
+	Información extendida (puede dar info de errores)
+	$ sudo service bluetooth status -l
+- hcitool
+	Ver dispositivos locales:
+	$ sudo hcitool dev
+	Deberia salir un hci0 con una direccion bluetooth
+- Instalar aplicacion canbus
+- Ejecutar aplicacion canbus en raspberry
+	$ sudo java -jar canbus.jar
+	Para que encuentre librerias del puerto serie
+	$ sudo java -Djava.library.path=/usr/lib/jni -jar canbus.jar
+- Abir log
+	$ sudo tail -500f /opt/canbus/log/transport.log
+
+GPS
+	$ sudo raspi-config
+	En Serial, responder no y si.
+	$ sudo reboot
+	$ ls -l /dev
+		lrwxrwxrwx 1 root root           5 Feb 22 16:38 serial0 -> ttyS0
+		lrwxrwxrwx 1 root root           7 Feb 22 16:38 serial1 -> ttyAMA0
+	El GPS está en ttyS0
+	Otra forma de leer del GPS:
+	$ sudo grep GPRMC /dev/ttyS0
+	$ sudo cat /dev/ttyS0
+
+	Para la app
+	$ sudo apt-get install librxtx-java
+	$ sudo ln -s /dev/ttyS0 /dev/ttyS80
+	$ sudo java -Djava.library.path=/usr/lib/jni -jar canbus.jar
+

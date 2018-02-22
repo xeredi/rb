@@ -2,21 +2,17 @@ package com.xeredi.canbus.mqtt;
 
 import java.util.List;
 
-import lombok.Data;
-import lombok.NonNull;
-
 // TODO: Auto-generated Javadoc
 /**
  * Instantiates a new mqtt data.
  */
-@Data
 public class MqttData {
 
 	/** The sender id. */
-	private String senderId;
+	private final String senderId;
 
 	/** The message list. */
-	private List<String> messageList;
+	private final List<String> messageList;
 
 	/**
 	 * Instantiates a new mqtt data.
@@ -26,13 +22,27 @@ public class MqttData {
 	 * @param amessageList
 	 *            the amessage list
 	 */
-	public MqttData(final @NonNull String asenderId, final @NonNull List<String> amessageList) {
+	public MqttData(final String asenderId, final List<String> amessageList) {
 		super();
 		this.senderId = asenderId;
 		this.messageList = amessageList;
 	}
 
-	public MqttData() {
-		super();
+	/**
+	 * Gets the sender id.
+	 *
+	 * @return the sender id
+	 */
+	public String getSenderId() {
+		return senderId;
+	}
+
+	/**
+	 * Gets the message list.
+	 *
+	 * @return the message list
+	 */
+	public List<String> getMessageList() {
+		return messageList;
 	}
 }
