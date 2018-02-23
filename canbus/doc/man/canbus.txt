@@ -1,10 +1,11 @@
 ****************************************************************************************
-
 CANBUS
 
 - Partir de imagen limpia de raspbian
 - Conectar a raspberry
 	$ ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no transport@192.168.1.102
+
+BLUETOOTH
 - Ver estado servicio bluetooth
 	$ sudo service bluetooth status
 	Información extendida (puede dar info de errores)
@@ -34,7 +35,9 @@ GPS
 	$ sudo cat /dev/ttyS0
 
 	Para la app
-	$ sudo apt-get install librxtx-java
 	$ sudo ln -s /dev/ttyS0 /dev/ttyS80
-	$ sudo java -Djava.library.path=/usr/lib/jni -jar canbus.jar
+	$ sudo java -jar canbus.jar
 
+
+Direcciones Bluetooth:
+	001DA568988B - Name: OBDII

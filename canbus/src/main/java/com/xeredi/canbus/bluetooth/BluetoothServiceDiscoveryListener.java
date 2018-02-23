@@ -127,10 +127,31 @@ public final class BluetoothServiceDiscoveryListener implements DiscoveryListene
 	private String getUUID(final ServiceRecord record) {
 		String uuid = null;
 
-		final DataElement serviceUUID = (DataElement) ((Enumeration) record.getAttributeValue(0x0001).getValue())
-				.nextElement();
+		final DataElement element = record.getAttributeValue(0x0001);
 
-		uuid = serviceUUID.getValue().toString();
+		if (element == null) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("No UUID");
+			}
+		} else {
+			final Enumeration enumeration = (Enumeration) element.getValue();
+
+			if (enumeration == null || !enumeration.hasMoreElements()) {
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("No UUID");
+				}
+			} else {
+				final DataElement serviceUUID = (DataElement) enumeration.nextElement();
+
+				if (serviceUUID == null) {
+					if (LOG.isDebugEnabled()) {
+						LOG.debug("No UUID");
+					}
+				} else {
+					uuid = serviceUUID.getValue().toString();
+				}
+			}
+		}
 
 		return uuid;
 	}
