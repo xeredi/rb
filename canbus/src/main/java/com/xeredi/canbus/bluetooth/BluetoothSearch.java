@@ -3,14 +3,15 @@ package com.xeredi.canbus.bluetooth;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
-import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.obex.ClientSession;
@@ -30,40 +31,11 @@ public final class BluetoothSearch {
 	/** The Constant LOG. */
 	private static final Log LOG = LogFactory.getLog(BluetoothSearch.class);
 
-	/** The local device. */
-	private LocalDevice localDevice;
-
-	/** The remote device map. */
-	private Map<String, RemoteDevice> remoteDeviceMap;
-
-	/** The service map. */
-	private Map<String, Map<String, ServiceRecord>> serviceMap;
-
 	/**
 	 * Instantiates a new bluetooth search.
 	 */
 	public BluetoothSearch() {
 		super();
-
-		remoteDeviceMap = new HashMap<>();
-		serviceMap = new HashMap<>();
-	}
-
-	/**
-	 * Sets the local device bluecove.
-	 */
-	public void setLocalDeviceBluecove() {
-		try {
-			localDevice = LocalDevice.getLocalDevice();
-
-			if (LOG.isDebugEnabled()) {
-				LOG.debug("localDevice: " + " - BluetoothAddress: " + localDevice.getBluetoothAddress()
-						+ " - FriendlyName: " + localDevice.getFriendlyName() + " - Discoverable: "
-						+ localDevice.getDiscoverable());
-			}
-		} catch (final BluetoothStateException ex) {
-			LOG.error(ex, ex);
-		}
 	}
 
 	/**
@@ -74,8 +46,12 @@ public final class BluetoothSearch {
 	 * @param attrIds
 	 *            the attr ids
 	 */
-	public void searchServicesBluecove(final UUID[] uuids, final int[] attrIds) {
+	public List<BluetoothServiceInfo> searchServicesBluecove(final UUID[] uuids, final int[] attrIds) {
 		LOG.info("Search Services");
+
+		final List<BluetoothServiceInfo> serviceInfos = new ArrayList<>();
+
+		final Map<String, RemoteDevice> remoteDeviceMap = searchDevicesBluecove(DiscoveryAgent.GIAC, true);
 
 		for (final String name : remoteDeviceMap.keySet()) {
 			final RemoteDevice remoteDevice = remoteDeviceMap.get(name);
@@ -86,8 +62,8 @@ public final class BluetoothSearch {
 				final BluetoothServiceDiscoveryListener listener = new BluetoothServiceDiscoveryListener();
 
 				synchronized (listener) {
-					final int transactionId = localDevice.getDiscoveryAgent().searchServices(attrIds, uuids,
-							remoteDevice, listener);
+					final int transactionId = LocalDevice.getLocalDevice().getDiscoveryAgent().searchServices(attrIds,
+							uuids, remoteDevice, listener);
 
 					if (transactionId > 0) {
 						LOG.info("wait for service inquiry to complete...");
@@ -95,7 +71,9 @@ public final class BluetoothSearch {
 						try {
 							listener.wait();
 
-							serviceMap.put(name, listener.getServiceMap());
+							for (final BluetoothServiceInfo serviceInfo : listener.getServiceInfos()) {
+								serviceInfos.add(serviceInfo);
+							}
 						} catch (final InterruptedException ex) {
 							LOG.fatal(ex, ex);
 						}
@@ -107,6 +85,8 @@ public final class BluetoothSearch {
 				LOG.error(ex, ex);
 			}
 		}
+
+		return serviceInfos;
 	}
 
 	/**
@@ -117,9 +97,11 @@ public final class BluetoothSearch {
 	 * @param retry
 	 *            the retry
 	 */
-	public void searchDevicesBluecove(final int accessCode, final boolean retry) {
+	private Map<String, RemoteDevice> searchDevicesBluecove(final int accessCode, final boolean retry) {
+		final Map<String, RemoteDevice> remoteDeviceMap = new HashMap<>();
+
 		try {
-			final DiscoveryAgent agent = localDevice.getDiscoveryAgent();
+			final DiscoveryAgent agent = LocalDevice.getLocalDevice().getDiscoveryAgent();
 
 			do {
 				final BluetoothDeviceDiscoveryListener listener = new BluetoothDeviceDiscoveryListener();
@@ -134,7 +116,7 @@ public final class BluetoothSearch {
 						try {
 							listener.wait();
 
-							remoteDeviceMap = listener.getDevicesMap();
+							remoteDeviceMap.putAll(listener.getDevicesMap());
 						} catch (final InterruptedException ex) {
 							LOG.fatal(ex, ex);
 						}
@@ -148,6 +130,8 @@ public final class BluetoothSearch {
 		} catch (final BluetoothStateException ex) {
 			LOG.error(ex, ex);
 		}
+
+		return remoteDeviceMap;
 	}
 
 	/**

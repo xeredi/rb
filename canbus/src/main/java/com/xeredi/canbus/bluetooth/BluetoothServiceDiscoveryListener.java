@@ -1,8 +1,8 @@
 package com.xeredi.canbus.bluetooth;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import javax.bluetooth.DataElement;
 import javax.bluetooth.DeviceClass;
@@ -31,7 +31,7 @@ public final class BluetoothServiceDiscoveryListener implements DiscoveryListene
 	private static final Log LOG = LogFactory.getLog(BluetoothServiceDiscoveryListener.class);
 
 	/** The services. */
-	private final Map<String, ServiceRecord> serviceMap = new HashMap<>();
+	private final List<BluetoothServiceInfo> serviceInfos = new ArrayList<>();
 
 	/** The result type. */
 	private int resultType;
@@ -58,7 +58,7 @@ public final class BluetoothServiceDiscoveryListener implements DiscoveryListene
 						+ connectionURL + " - name: " + name);
 			}
 
-			serviceMap.put(uuid, record);
+			serviceInfos.add(new BluetoothServiceInfo(address, address, connectionURL, name, uuid));
 		}
 	}
 
@@ -191,8 +191,8 @@ public final class BluetoothServiceDiscoveryListener implements DiscoveryListene
 	 *
 	 * @return the services
 	 */
-	public Map<String, ServiceRecord> getServiceMap() {
-		return serviceMap;
+	public List<BluetoothServiceInfo> getServiceInfos() {
+		return serviceInfos;
 	}
 
 	/**

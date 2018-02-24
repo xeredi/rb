@@ -41,3 +41,8 @@ GPS
 
 Direcciones Bluetooth:
 	001DA568988B - Name: OBDII
+UUID
+	Canbus: 0x1101
+	OBEX Object Push: 0x1105
+	Shit: 0x0100
+

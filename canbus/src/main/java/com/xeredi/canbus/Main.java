@@ -7,6 +7,8 @@ import org.quartz.impl.StdSchedulerFactory;
 
 import com.pi4j.system.SystemInfo;
 import com.xeredi.canbus.mqtt.MqttWriter;
+import com.xeredi.canbus.util.ConfigurationKey;
+import com.xeredi.canbus.util.ConfigurationUtil;
 import com.xeredi.canbus.util.DateUtil;
 
 // TODO: Auto-generated Javadoc
@@ -25,24 +27,32 @@ public final class Main {
 	 *            the arguments
 	 */
 	public static void main(final String[] args) {
-		try {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Start Scheduler");
+		if (args.length > 0) {
+			System.out.println("Reading arguments");
+
+			if ("--version".equals(args[0])) {
+				System.out.println("Version: " + ConfigurationUtil.getString(ConfigurationKey.app_version));
 			}
+		} else {
+			try {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("Start Scheduler. Release: " + ConfigurationUtil.getString(ConfigurationKey.app_version));
+				}
 
-			final MqttWriter mqttWriter = MqttWriter.getInstance(SystemInfo.getSerial());
+				final MqttWriter mqttWriter = MqttWriter.getInstance(SystemInfo.getSerial());
 
-			mqttWriter.sendPlacaArranqueData(DateUtil.getDateString());
+				mqttWriter.sendPlacaArranqueData(DateUtil.getDateString());
 
-			final Scheduler scheduler = new StdSchedulerFactory().getScheduler();
+				final Scheduler scheduler = new StdSchedulerFactory().getScheduler();
 
-			scheduler.start();
+				scheduler.start();
 
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Start Scheduler SUCCESS");
+				if (LOG.isInfoEnabled()) {
+					LOG.info("Start Scheduler SUCCESS");
+				}
+			} catch (final Throwable ex) {
+				LOG.fatal("Start Scheduler FAIL", ex);
 			}
-		} catch (final Throwable ex) {
-			LOG.fatal("Start Scheduler FAIL", ex);
 		}
 	}
 }
