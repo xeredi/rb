@@ -3,6 +3,7 @@ package com.xeredi.canbus.obd;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -66,11 +67,8 @@ public final class CanbusReader {
 
 			try (final InputStream is = putOperation.openInputStream();
 					final OutputStream os = putOperation.openOutputStream()) {
-
-				final ObdReader obdReader = new ObdReader(is, os);
-
 				for (final String obdCode : obdCodes) {
-					obdData.put(obdCode, obdReader.read(obdCode));
+					obdData.put(obdCode, read(is, os, obdCode));
 				}
 			}
 		} finally {
@@ -81,4 +79,55 @@ public final class CanbusReader {
 
 		return obdData;
 	}
+
+	/**
+	 * Read.
+	 *
+	 * @param is
+	 *            the is
+	 * @param os
+	 *            the os
+	 * @param command
+	 *            the command
+	 * @return the list
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	private List<Byte> read(final InputStream is, final OutputStream os, final String command) throws IOException {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("command: " + command);
+		}
+
+		// Send command
+		os.write((command + "\r").getBytes());
+		os.flush();
+
+		// FIXME sleep??
+
+		final List<Byte> response = new ArrayList<>();
+
+		byte b = 0;
+
+		while (((b = (byte) is.read()) > -1)) {
+			final char c = (char) b;
+			if (c == '>') {
+				break;
+			}
+
+			response.add(b);
+		}
+
+		if (LOG.isDebugEnabled()) {
+			final StringBuilder res = new StringBuilder();
+
+			for (final byte responseByte : response) {
+				res.append((char) responseByte);
+			}
+
+			LOG.debug("command: " + command + ", response: " + res.toString());
+		}
+
+		return response;
+	}
+
 }

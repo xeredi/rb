@@ -1,43 +1,32 @@
-package com.xeredi.canbus.process.gps;
+package com.xeredi.canbus.job;
 
 import java.io.IOException;
-import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.paho.client.mqttv3.MqttException;
 
-import com.pi4j.io.serial.Baud;
-import com.pi4j.io.serial.DataBits;
-import com.pi4j.io.serial.FlowControl;
-import com.pi4j.io.serial.Parity;
-import com.pi4j.io.serial.Serial;
-import com.pi4j.io.serial.SerialConfig;
 import com.pi4j.io.serial.SerialDataEvent;
 import com.pi4j.io.serial.SerialDataEventListener;
-import com.pi4j.io.serial.SerialFactory;
-import com.pi4j.io.serial.SerialPort;
-import com.pi4j.io.serial.StopBits;
-import com.pi4j.util.CommandArgumentParser;
-import com.pi4j.util.Console;
-import com.xeredi.canbus.process.RbProcess;
+import com.xeredi.canbus.mqtt.MqttWriter;
 import com.xeredi.canbus.util.ConfigurationKey;
 import com.xeredi.canbus.util.ConfigurationUtil;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class GpsPi4jProcess.
+ * The listener interface for receiving gps events.
+ * The class that is interested in processing a gps
+ * event implements this interface, and the object created
+ * with that class is registered with a component using the
+ * component's <code>addGpsListener<code> method. When
+ * the gps event occurs, that object's appropriate
+ * method is invoked.
+ *
+ * @see GpsEvent
  */
-public final class GpsPi4jProcess extends RbProcess implements SerialDataEventListener {
+public final class GpsListener implements SerialDataEventListener {
 
 	/** The Constant LOG. */
-	private static final Log LOG = LogFactory.getLog(GpsPi4jProcess.class);
-
-	/** The Constant GPS_PORT_ID. */
-	private static final String GPS_PORT_ID = ConfigurationUtil.getString(ConfigurationKey.gps_port_id);
-
-	/** The Constant GPS_PORT_SPEED. */
-	private static final int GPS_PORT_SPEED = ConfigurationUtil.getInteger(ConfigurationKey.gps_port_speed);
+	private static final Log LOG = LogFactory.getLog(GpsListener.class);
 
 	/** The Constant GPRMC_PREFIX. */
 	private static final String SEGMENT_PREFIX = ConfigurationUtil.getString(ConfigurationKey.gps_segment_prefix);
@@ -54,18 +43,19 @@ public final class GpsPi4jProcess extends RbProcess implements SerialDataEventLi
 	/** The buffer. */
 	private final StringBuilder buffer;
 
+	/** The mqtt writer. */
+	private final MqttWriter mqttWriter;
+
 	/**
-	 * Instantiates a new gps pi 4 j process.
+	 * Instantiates a new gps listener.
 	 *
-	 * @throws MqttException
-	 *             the mqtt exception
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
+	 * @param mqttWriter the mqtt writer
 	 */
-	public GpsPi4jProcess() throws MqttException, IOException {
+	public GpsListener(final MqttWriter mqttWriter) {
 		super();
 
-		buffer = new StringBuilder();
+		this.buffer = new StringBuilder();
+		this.mqttWriter = mqttWriter;
 	}
 
 	/**
@@ -120,43 +110,6 @@ public final class GpsPi4jProcess extends RbProcess implements SerialDataEventLi
 			}
 		} catch (final IOException ex) {
 			LOG.error(ex);
-		}
-	}
-
-	/**
-	 * Execute.
-	 */
-	public void execute() {
-		LOG.info("Start");
-
-		final Serial serial = SerialFactory.createInstance();
-
-		serial.addListener(this);
-
-		try {
-			final SerialConfig config = new SerialConfig();
-			final Baud baud = Baud.getInstance(GPS_PORT_SPEED);
-
-			config.device(GPS_PORT_ID).baud(baud).dataBits(DataBits._8).parity(Parity.NONE).stopBits(StopBits._1)
-					.flowControl(FlowControl.NONE);
-
-			serial.open(config);
-		} catch (IOException ex) {
-			LOG.fatal(ex, ex);
-
-			if (serial.isOpen()) {
-				try {
-					serial.close();
-				} catch (final IOException e) {
-					LOG.fatal(e, e);
-				}
-			}
-
-			try {
-				Thread.sleep(MAX_SLEEPTIME_MS);
-			} catch (final InterruptedException e) {
-				LOG.fatal(e, e);
-			}
 		}
 	}
 }
