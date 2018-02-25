@@ -41,6 +41,8 @@ public final class MqttWriter {
 		placa_ping_data,
 		/** The placa arranque data. */
 		placa_arranque_data,
+		/** The canbus data. */
+		canbus_data,
 
 		;
 	};
@@ -52,6 +54,7 @@ public final class MqttWriter {
 	private static final int MQTT_RETRY_TIMEINMILLIS = ConfigurationUtil
 			.getInteger(ConfigurationKey.mqtt_retry_timeinmillis);
 
+	/** The Constant MQTT_MESSAGE_BATCHSIZE. */
 	private static final int MQTT_MESSAGE_BATCHSIZE = ConfigurationUtil
 			.getInteger(ConfigurationKey.mqtt_message_batchsize);
 
@@ -169,6 +172,18 @@ public final class MqttWriter {
 	 */
 	public void sendPlacaArranqueData(final String message) throws IOException {
 		sendMessage(TOPIC.placa_arranque_data, message);
+	}
+
+	/**
+	 * Send canbus data.
+	 *
+	 * @param message
+	 *            the message
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	public void sendCanbusData(final Map<String, List<Byte>> message) throws IOException {
+		sendMessage(TOPIC.canbus_data, message.toString());
 	}
 
 	/**

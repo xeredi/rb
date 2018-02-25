@@ -1,7 +1,8 @@
 package com.xeredi.canbus.bluetooth;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.bluetooth.DeviceClass;
@@ -36,7 +37,7 @@ public final class BluetoothDeviceDiscoveryListener implements DiscoveryListener
 	private static final int NAME_ATTEMPT_WAIT_MS = 500;
 
 	/** The devices map. */
-	private final Map<String, RemoteDevice> devicesMap = new HashMap<>();
+	private final List<BluetoothDeviceInfo> deviceInfos = new ArrayList<>();
 
 	/** The result type. */
 	private int resultType;
@@ -81,7 +82,7 @@ public final class BluetoothDeviceDiscoveryListener implements DiscoveryListener
 			LOG.debug(" - Address: " + btDevice.getBluetoothAddress() + " - Name: " + name);
 		}
 
-		devicesMap.put(name, btDevice);
+		deviceInfos.add(new BluetoothDeviceInfo(btDevice, name));
 	}
 
 	/**
@@ -135,12 +136,12 @@ public final class BluetoothDeviceDiscoveryListener implements DiscoveryListener
 	}
 
 	/**
-	 * Gets the devices map.
+	 * Gets the device infos.
 	 *
-	 * @return the devices map
+	 * @return the device infos
 	 */
-	public Map<String, RemoteDevice> getDevicesMap() {
-		return devicesMap;
+	public List<BluetoothDeviceInfo> getDeviceInfos() {
+		return deviceInfos;
 	}
 
 	/**

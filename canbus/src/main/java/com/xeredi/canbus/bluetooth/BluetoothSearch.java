@@ -4,14 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
-import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.obex.ClientSession;
@@ -51,19 +48,17 @@ public final class BluetoothSearch {
 
 		final List<BluetoothServiceInfo> serviceInfos = new ArrayList<>();
 
-		final Map<String, RemoteDevice> remoteDeviceMap = searchDevicesBluecove(DiscoveryAgent.GIAC, true);
+		final List<BluetoothDeviceInfo> deviceInfos = searchDevicesBluecove(DiscoveryAgent.GIAC, true);
 
-		for (final String name : remoteDeviceMap.keySet()) {
-			final RemoteDevice remoteDevice = remoteDeviceMap.get(name);
-
-			LOG.info("Services from: " + name + " : " + remoteDevice.getBluetoothAddress());
+		for (final BluetoothDeviceInfo deviceInfo : deviceInfos) {
+			LOG.info("Services from: " + deviceInfo.getName() + " : " + deviceInfo.getDevice().getBluetoothAddress());
 
 			try {
 				final BluetoothServiceDiscoveryListener listener = new BluetoothServiceDiscoveryListener();
 
 				synchronized (listener) {
 					final int transactionId = LocalDevice.getLocalDevice().getDiscoveryAgent().searchServices(attrIds,
-							uuids, remoteDevice, listener);
+							uuids, deviceInfo.getDevice(), listener);
 
 					if (transactionId > 0) {
 						LOG.info("wait for service inquiry to complete...");
@@ -97,8 +92,8 @@ public final class BluetoothSearch {
 	 * @param retry
 	 *            the retry
 	 */
-	private Map<String, RemoteDevice> searchDevicesBluecove(final int accessCode, final boolean retry) {
-		final Map<String, RemoteDevice> remoteDeviceMap = new HashMap<>();
+	private List<BluetoothDeviceInfo> searchDevicesBluecove(final int accessCode, final boolean retry) {
+		final List<BluetoothDeviceInfo> deviceInfos = new ArrayList<>();
 
 		try {
 			final DiscoveryAgent agent = LocalDevice.getLocalDevice().getDiscoveryAgent();
@@ -116,22 +111,22 @@ public final class BluetoothSearch {
 						try {
 							listener.wait();
 
-							remoteDeviceMap.putAll(listener.getDevicesMap());
+							deviceInfos.addAll(listener.getDeviceInfos());
 						} catch (final InterruptedException ex) {
 							LOG.fatal(ex, ex);
 						}
 
 						if (LOG.isDebugEnabled()) {
-							LOG.debug(remoteDeviceMap.size() + " device(s) found");
+							LOG.debug(deviceInfos.size() + " device(s) found");
 						}
 					}
 				}
-			} while (remoteDeviceMap.isEmpty() && retry);
+			} while (deviceInfos.isEmpty() && retry);
 		} catch (final BluetoothStateException ex) {
 			LOG.error(ex, ex);
 		}
 
-		return remoteDeviceMap;
+		return deviceInfos;
 	}
 
 	/**

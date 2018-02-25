@@ -29,7 +29,7 @@
     </appender>
 
     <logger name='com.xeredi'>
-        <level value="INFO" />
+        <level value="DEBUG" />
     </logger>
     <root>
         <level value="ERROR" />

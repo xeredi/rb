@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.bluetooth.UUID;
 import javax.obex.ClientSession;
@@ -91,8 +92,9 @@ public final class CanbusJob extends AbstractJob {
 
 			final CanbusReader canbusReader = new CanbusReader(clientSession);
 
-			canbusReader.read();
+			final Map<String, List<Byte>> data = canbusReader.read();
 
+			mqttWriter.sendCanbusData(data);
 		} catch (final IOException ex) {
 			LOG.fatal(ex, ex);
 		} catch (final ConfigurationException ex) {
@@ -241,6 +243,10 @@ public final class CanbusJob extends AbstractJob {
 
 		if (serviceInfos.size() > 1) {
 			LOG.warn("Demasiados servicios encontrados: " + serviceInfos.size());
+
+			for (final BluetoothServiceInfo serviceInfo : serviceInfos) {
+				LOG.warn("serviceInfo: " + serviceInfo);
+			}
 
 			return serviceInfos.get(0).getUrl();
 		}
