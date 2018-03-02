@@ -9,9 +9,9 @@
 
     <properties>
         <raspberry.ip>192.168.1.102</raspberry.ip>
-        <raspberry.user>transport</raspberry.user>
-        <raspberry.password>transport</raspberry.password>
-        <raspberry.deployPath>/home/transport</raspberry.deployPath>
+        <raspberry.user>pi</raspberry.user>
+        <raspberry.password>raspberry</raspberry.password>
+        <raspberry.deployPath>/home/pi</raspberry.deployPath>
 
         <pi4j-core.version>1.1</pi4j-core.version>
         <bluecove.version>2.1.1-SNAPSHOT</bluecove.version>

@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.bluetooth.UUID;
 import javax.obex.ClientSession;
 
 import org.apache.commons.configuration2.PropertiesConfiguration;
@@ -18,6 +17,15 @@ import org.apache.commons.logging.LogFactory;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 
+import com.github.pires.obd.commands.engine.RPMCommand;
+import com.pi4j.io.serial.Baud;
+import com.pi4j.io.serial.DataBits;
+import com.pi4j.io.serial.FlowControl;
+import com.pi4j.io.serial.Parity;
+import com.pi4j.io.serial.Serial;
+import com.pi4j.io.serial.SerialConfig;
+import com.pi4j.io.serial.SerialFactory;
+import com.pi4j.io.serial.StopBits;
 import com.xeredi.canbus.bluetooth.BluetoothSearch;
 import com.xeredi.canbus.bluetooth.BluetoothServiceInfo;
 import com.xeredi.canbus.obd.CanbusReader;
@@ -43,6 +51,10 @@ public final class CanbusJob extends AbstractJob {
 	/** The Constant CANBUS_FILE_CONFIG. */
 	private static final Long CANBUS_SLEEP_MS = ConfigurationUtil.getLong(ConfigurationKey.canbus_sleep_ms);
 
+	private static final String CANBUS_PORT_ID = ConfigurationUtil.getString(ConfigurationKey.canbus_port_id);
+
+	private static final int CANBUS_PORT_SPEED = ConfigurationUtil.getInteger(ConfigurationKey.canbus_port_speed);
+
 	/** The Constant CANBUS_CONFIGURATION. */
 	private static PropertiesConfiguration CANBUS_CONFIGURATION = null;
 
@@ -51,6 +63,38 @@ public final class CanbusJob extends AbstractJob {
 	 */
 	@Override
 	public void doExecute(final JobExecutionContext context) {
+		final Serial serial = SerialFactory.createInstance();
+
+		try {
+			LOG.info("Access to: " + CANBUS_PORT_ID);
+
+			final SerialConfig config = new SerialConfig();
+			final Baud baud = Baud.getInstance(CANBUS_PORT_SPEED);
+
+			config.device(CANBUS_PORT_ID).baud(baud).dataBits(DataBits._8).parity(Parity.NONE).stopBits(StopBits._1)
+					.flowControl(FlowControl.NONE);
+
+			LOG.info("Open: " + CANBUS_PORT_ID);
+			serial.open(config);
+
+			LOG.info("RPM command");
+			final RPMCommand command = new RPMCommand();
+
+			command.run(serial.getInputStream(), serial.getOutputStream());
+
+			LOG.info("RPM: " + command.getRPM());
+		} catch (Exception ex) {
+			LOG.fatal(ex, ex);
+
+			if (serial.isOpen()) {
+				try {
+					serial.close();
+				} catch (final IOException e) {
+					LOG.fatal(e, e);
+				}
+			}
+		}
+
 		ClientSession clientSession = null;
 
 		try {
@@ -91,7 +135,6 @@ public final class CanbusJob extends AbstractJob {
 			}
 
 			final CanbusReader canbusReader = new CanbusReader(clientSession);
-
 			final Map<String, List<Byte>> data = canbusReader.read();
 
 			mqttWriter.sendCanbusData(data);
@@ -218,7 +261,7 @@ public final class CanbusJob extends AbstractJob {
 			LOG.debug("Search CANBUS url");
 		}
 
-		final UUID[] uuids = new UUID[] { new UUID(CANBUS_UUID, true) };
+		final javax.bluetooth.UUID[] uuids = new javax.bluetooth.UUID[] { new javax.bluetooth.UUID(CANBUS_UUID, true) };
 		int[] attrIDs = new int[] { 0x0100 }; // Service name
 
 		if (LOG.isDebugEnabled()) {

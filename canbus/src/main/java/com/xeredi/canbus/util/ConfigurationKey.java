@@ -45,6 +45,8 @@ public enum ConfigurationKey {
 	canbus_url,
 	/** The canbus sleep ms. */
 	canbus_sleep_ms,
+	canbus_port_id,
+	canbus_port_speed,
 
 	;
 }
