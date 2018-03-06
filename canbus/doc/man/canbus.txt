@@ -81,6 +81,9 @@ De la respuesta INTERESA:
 Conexion a la direccion y canal encontrados:
 $ sudo rfcomm bind /dev/rfcomm0 5C:F3:70:88:34:24 8
 
+Liberar Conexion:
+$ sudo rfcomm release /dev/rfcomm0
+
 Verificar que funciona:
 $ sudo apt-get install screen
 $ sudo screen /dev/rfcomm0
@@ -98,7 +101,13 @@ OK
 >010C <-------------- RPM
 41 0C 88 EC 74
 
+Ver si un bluetooth está en alcance:
+$ sudo l2ping 5C:F3:70:88:34:24
 
+
+RXTX
+$ sudo apt-get install librxtx-java
+$ sudo java -Djava.library.path=/usr/lib/jni/ -jar bluetooth.jar
 
 
 Direcciones Bluetooth:
@@ -119,187 +128,15 @@ OBDSIM
 
 
 
-OJOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-pi@raspberrypi:~ $ sdptool search sp
-Inquiring ...
-Searching for sp on 5C:F3:70:88:34:24 ...
-Service Name: COM5
-Service Description: COM5
-Service RecHandle: 0x1003d
-Service Class ID List:
-  "Serial Port" (0x1101)
-Protocol Descriptor List:
-  "L2CAP" (0x0100)
-  "RFCOMM" (0x0003)
-    Channel: 8
-Language Base Attr List:
-  code_ISO639: 0x656e
-  encoding:    0x6a
-  base_offset: 0x100
-Profile Descriptor List:
-  "Serial Port" (0x1101)
-    Version: 0x0100
-$ sudo rfcomm connect /dev/rfcomm0 5C:F3:70:88:34:24 8
+ALGORITMO CONEXION
 
-
-
-
-OJO
-$ sudo rfcomm -r bind 5C:F3:70:88:34:24 1
-$ sudo rfcomm -r connect 5C:F3:70:88:34:24 1
-
-$ sudo rfcomm connect hci0 5C:F3:70:88:34:24 # PC
-$ sudo rfcomm connect hci0 00:1D:A5:68:98:8B # OBDII
-$ sudo rfcomm connect hci0 24:DA:9B:13:20:84 # MotoG3
-
-$ sudo rfcomm bind /dev/rfcomm0 5C:F3:70:88:34:24
-$ sudo screen /dev/rfcomm0
-	para salir de screen, Ctrl+A y después pulsar "d"
-$ sudo rfcomm release /dev/rfcomm0
-
-$ sudo bluez-simple-agent hci0 5C:F3:70:88:34:24 # PC
-
-$ sudo l2ping  5C:F3:70:88:34:24 # PC
-$ sudo l2ping  64:5A:04:C1:C3:97 # Toshiba
-
-
-Estado del servicio
-$ sudo systemctl status bluetooth
-
-
-$ sudo nano /etc/bluetooth/rfcomm.conf
-
-rfcomm1 {
-    # Automatically bind the device at startup
-    bind yes;
-
-   # Bluetooth address of the device
-    device 5C:F3:70:88:34:24;
-
-    # RFCOMM channel for the connection
-    channel 1;
-
-    # Description of the connection
-    comment "OBDsim";
-}
-
-
-
-
-
-$ sudo nano /etc/bluetooth/main.conf
-$ sudo service bluetooth status
-
-
-	A VER SI ASI....
-
-	https://www.youtube.com/watch?v=DmtJBc229Rg
-		$ hciconfig
-			hci0:	Type: BR/EDR  Bus: UART
-				BD Address: B8:27:EB:46:2D:EF  ACL MTU: 1021:8  SCO MTU: 64:1
-				DOWN
-				RX bytes:43343 acl:109 sco:0 events:1256 errors:0
-				TX bytes:10411 acl:113 sco:0 commands:610 errors:0
-		$ sudo apt-get install python-dev libbluetooth-dev
-		$ sudo service bluetooth status
-			● bluetooth.service - Bluetooth service
-			   Loaded: loaded (/lib/systemd/system/bluetooth.service; enabled)
-			   Active: active (running) since Thu 2018-03-01 01:27:31 UTC; 8h ago
-			     Docs: man:bluetoothd(8)
-			 Main PID: 1114 (bluetoothd)
-			   Status: "Running"
-			   CGroup: /system.slice/bluetooth.service
-			           └─1114 /usr/lib/bluetooth/bluetoothd
-
-			Mar 01 01:27:31 raspberrypi bluetoothd[1114]: Bluetooth daemon 5.23
-			Mar 01 01:27:31 raspberrypi bluetoothd[1114]: Unknown key DisablePlugins in main.conf
-			Mar 01 01:27:31 raspberrypi systemd[1]: Started Bluetooth service.
-			Mar 01 01:27:31 raspberrypi bluetoothd[1114]: Starting SDP server
-			Mar 01 01:27:31 raspberrypi bluetoothd[1114]: Bluetooth management interface 1.14 initialized
-			Mar 01 01:27:31 raspberrypi bluetoothd[1114]: Sap driver initialization failed.
-			Mar 01 01:27:31 raspberrypi bluetoothd[1114]: sap-server: Operation not permitted (1)
-	$ sudo nano /lib/systemd/system/bluetooth.service
-		Cambiar
-			ExecStart=/usr/lib/bluetooth/bluetoothd
-		Por
-			ExecStart=/usr/lib/bluetooth/bluetoothd -C
-	$ sudo reboot
-	$ sudo service bluetooth status
-	$ sudo bluetoothctl
-	[bluetooth]# power on
-	[bluetooth]# pairable on
-	[bluetooth]# discoverable on
-	[bluetooth]# agent on
-	[bluetooth]# default-agent
-	[bluetooth]# quit
-
-	$ wget https://bootstrap.pypa.io/get-pip.py
-	$ sudo python get-pip.py
-	$ sudo apt-get install git
-	$ git clone https://github.com/karulis/pybluez.git
-	$ cd pybluez/
-	$ sudo python setup.py install
-	$ cd examples/simple/
-	$ sudo python rfcomm-server.py
-		Da un error
-	$ cd
-	$ sudo nano bluetooth_adv
-		Contenido:
-
-		sudo hciconfig hci0 piscan
-		sudo sdptool add SP
-	$ sudo chmod +x bluetooth_adv
-	$ sudo ./bluetooth_adv
-	$ sudo python pybluez/examples/simple/rfcomm-server.py
-		Waiting for connection on RFCOMM channel 1
-
-
-
-
-
-
-
-
-
-
-PRUEBA EN CENTOS
-PC       5C:F3:70:88:34:33
-Portatil 5C:F3:70:88:34:24
-
-$ sudo bluetoothctl
-	power on
-	agent on
-	default-agent
-	discoverable on
-	scan on
-	pair 5C:F3:70:88:34:24
-	trust 5C:F3:70:88:34:24
-
-$ sudo nano /etc/bluetooth/rfcomm.conf
-rfcomm0 {
-	bind yes;
-	device 5C:F3:70:88:34:24;
-	channel 1;
-	comment "Portatil Serial Port";
-}
-$ sudo rfcomm connect 0 # No funciona en CENTOS
-$ sudo rfcomm connect /dev/rfcomm0 5C:F3:70:88:34:24 1 &
-$ sudo yum install screen
-$ sudo screen /dev/rfcomm0
-	Salir con CTRL-A y despues pulsar d
-$ sudo yum install minicom
-$ sudo minicom -D /dev/rfcomm0
-	Salir con CTRL-A y despues pulsar x
-
-$ sudo rfcomm release /dev/rfcomm0
-
-Otra opcion
-$ sudo rfcomm bind /dev/rfcomm0 5C:F3:70:88:34:24
-$ sudo screen /dev/rfcomm0
-	Salir con CTRL-A y despues pulsar d
-
-
-
-
-
-
+- Leo configuracion
+- Hay configuracion?
+	- Si ->
+		Leo parámetros
+		Trato de conectar
+- He conectado?
+	- No ->
+		Busco bluetooth
+		Trato de conectar
+		Guardo configuracion

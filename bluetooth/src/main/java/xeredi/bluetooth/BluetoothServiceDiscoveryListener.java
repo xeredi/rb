@@ -1,4 +1,4 @@
-package com.xeredi.canbus.bluetooth;
+package xeredi.bluetooth;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -160,6 +160,25 @@ public final class BluetoothServiceDiscoveryListener implements DiscoveryListene
 	}
 
 	/**
+	 * Gets the name.
+	 *
+	 * @param record
+	 *            the record
+	 * @return the name
+	 */
+	private String getName(final ServiceRecord record) {
+		String name = null;
+
+		final DataElement element = record.getAttributeValue(0x0100);
+
+		if (element != null) {
+			name = (String) element.getValue();
+		}
+
+		return name;
+	}
+
+	/**
 	 * Gets the channel.
 	 *
 	 * @param record
@@ -208,25 +227,12 @@ public final class BluetoothServiceDiscoveryListener implements DiscoveryListene
 		return name;
 	}
 
-	/**
-	 * Gets the name.
+	/*
+	 * 0x4:DATSEQ
 	 *
-	 * @param record
-	 *            the record
-	 * @return the name
+	 * { DATSEQ { UUID 0000010000001000800000805f9b34fb } DATSEQ { UUID
+	 * 0000000300001000800000805f9b34fb U_INT_1 0x8 } }
 	 */
-	private String getName(final ServiceRecord record) {
-		String name = null;
-
-		final DataElement element = record.getAttributeValue(0x0100);
-
-		if (element != null) {
-			name = (String) element.getValue();
-		}
-
-		return name;
-	}
-
 	/**
 	 * Gets the connection URL.
 	 *

@@ -39,14 +39,18 @@ public enum ConfigurationKey {
 
 	/** The canbus uuid. */
 	canbus_uuid,
+	/** The canbus port id. */
+	canbus_port_id,
+	/** The canbus port speed. */
+	canbus_port_speed,
 	/** The canbus file config. */
 	canbus_file_config,
-	/** The canbus url. */
-	canbus_url,
+	/** The canbus host. */
+	canbus_host,
+	/** The canbus channel. */
+	canbus_channel,
 	/** The canbus sleep ms. */
 	canbus_sleep_ms,
-	canbus_port_id,
-	canbus_port_speed,
 
 	;
 }
