@@ -127,16 +127,3 @@ OBDSIM
 
 
 
-
-ALGORITMO CONEXION
-
-- Leo configuracion
-- Hay configuracion?
-	- Si ->
-		Leo parámetros
-		Trato de conectar
-- He conectado?
-	- No ->
-		Busco bluetooth
-		Trato de conectar
-		Guardo configuracion

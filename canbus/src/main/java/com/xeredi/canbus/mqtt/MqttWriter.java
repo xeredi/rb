@@ -63,7 +63,7 @@ public final class MqttWriter {
 
 	/** The Constant MQTT_TOPIC_LIST. */
 	private static final List<TOPIC> MQTT_TOPIC_LIST = Arrays.asList(TOPIC.gps_data, TOPIC.placa_ping_data,
-			TOPIC.placa_arranque_data);
+			TOPIC.placa_arranque_data, TOPIC.canbus_data);
 
 	/** The Constant OBJECT_MAPPER. */
 	private static final Gson OBJECT_MAPPER = new Gson();
@@ -182,7 +182,7 @@ public final class MqttWriter {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	public void sendCanbusData(final Map<String, List<Byte>> message) throws IOException {
+	public void sendCanbusData(final Map<String, String> message) throws IOException {
 		sendMessage(TOPIC.canbus_data, message.toString());
 	}
 

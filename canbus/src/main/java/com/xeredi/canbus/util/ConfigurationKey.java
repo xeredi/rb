@@ -51,6 +51,7 @@ public enum ConfigurationKey {
 	canbus_channel,
 	/** The canbus sleep ms. */
 	canbus_sleep_ms,
+	canbus_obdcodes,
 
 	;
 }

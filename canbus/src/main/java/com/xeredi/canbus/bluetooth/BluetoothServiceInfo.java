@@ -70,6 +70,11 @@ public final class BluetoothServiceInfo {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
+	/**
+	 * Gets the address normalized.
+	 *
+	 * @return the address normalized
+	 */
 	public String getAddressNormalized() {
 		if (deviceAddress == null) {
 			return null;

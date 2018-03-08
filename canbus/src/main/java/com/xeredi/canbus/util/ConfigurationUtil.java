@@ -58,6 +58,17 @@ public final class ConfigurationUtil {
 	}
 
 	/**
+	 * Gets the string array.
+	 *
+	 * @param key
+	 *            the key
+	 * @return the string array
+	 */
+	public static String[] getStringArray(final ConfigurationKey key) {
+		return CONFIGURATION.getString(key.name()).split(",");
+	}
+
+	/**
 	 * Gets the long.
 	 *
 	 * @param key

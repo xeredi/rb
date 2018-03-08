@@ -44,21 +44,29 @@ public final class GpsJob extends AbstractJob {
 
 		serial.addListener(gpsListener);
 
-		try {
-			final SerialConfig config = new SerialConfig();
-			final Baud baud = Baud.getInstance(GPS_PORT_SPEED);
+		final SerialConfig config = new SerialConfig();
+		final Baud baud = Baud.getInstance(GPS_PORT_SPEED);
 
-			config.device(GPS_PORT_ID).baud(baud).dataBits(DataBits._8).parity(Parity.NONE).stopBits(StopBits._1)
-					.flowControl(FlowControl.NONE);
+		config.device(GPS_PORT_ID).baud(baud).dataBits(DataBits._8).parity(Parity.NONE).stopBits(StopBits._1)
+				.flowControl(FlowControl.NONE);
 
-			serial.open(config);
-		} catch (IOException ex) {
-			LOG.fatal(ex, ex);
+		while (true) {
+			try {
+				serial.open(config);
+			} catch (IOException ex) {
+				LOG.fatal(ex, ex);
 
-			if (serial.isOpen()) {
+				if (serial.isOpen()) {
+					try {
+						serial.close();
+					} catch (final IOException e) {
+						LOG.fatal(e, e);
+					}
+				}
+
 				try {
-					serial.close();
-				} catch (final IOException e) {
+					Thread.sleep(30000L);
+				} catch (final Exception e) {
 					LOG.fatal(e, e);
 				}
 			}

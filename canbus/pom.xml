@@ -291,12 +291,21 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.rxtx</groupId>
+            <artifactId>rxtx-osgi</artifactId>
+            <version>${rxtx.version}</version>
+        </dependency>
     </dependencies>
 
     <repositories>
         <repository>
             <id>eclipse</id>
             <url>https://repo.eclipse.org/content/groups/releases/</url>
+        </repository>
+        <repository>
+            <id>rxtx</id>
+            <url>http://repo.opennms.org/maven2</url>
         </repository>
     </repositories>
 </project>
